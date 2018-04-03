@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
 
-const { Companies } = require('../handlers');
+const { companies } = require('../handlers');
 
 router
   .route('')
-  .get(Companies.readCompanys)
-  .post(Companies.createCompany);
+  .get(companies.readCompanies)
+  .post(companies.createCompany);
 
 router
   .route('/:CompanyId')
-  .get(Companies.readCompany)
-  .patch(Companies.updateCompany)
-  .delete(Companies.deleteCompany);
+  .get(companies.readCompany)
+  .patch(companies.updateCompany)
+  .delete(companies.deleteCompany);
 
 module.exports = router;

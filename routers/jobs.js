@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
 
-const { Jobs } = require('../handlers');
+const { jobs } = require('../handlers');
 
 router
   .route('')
-  .get(Jobs.readJobs)
-  .post(Jobs.createJob);
+  .get(jobs.readJobs)
+  .post(jobs.createJob);
 
 router
   .route('/:JobId')
-  .get(Jobs.readJob)
-  .patch(Jobs.updateJob)
-  .delete(Jobs.deleteJob);
+  .get(jobs.readJob)
+  .patch(jobs.updateJob)
+  .delete(jobs.deleteJob);
 
 module.exports = router;
