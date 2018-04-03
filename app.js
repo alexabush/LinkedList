@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-const { dogsRouter, ownersRouter } = require('./routers');
+const { dogsRouter, usersRouter } = require('./routers');
 
 const app = express();
 
@@ -23,7 +23,7 @@ mongoose
 const PORT = 3000;
 
 app.use('/dogs', dogsRouter);
-app.use('/owners', ownersRouter);
+app.use('/users', usersRouter);
 
 app.use((err, req, res, next) => {
   return res
