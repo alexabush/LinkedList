@@ -2,14 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-const { dogsRouter, usersRouter } = require('./routers');
+const { jobsRouter, usersRouter, companiesRouter } = require('./routers');
 
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ type: '*/*' }));
 
-mongoose.Promise = Promise; // baggage from before ES6
+mongoose.Promise = Promise;
 mongoose.set('debug', true);
 mongoose
   .connect('mongodb://localhost/linkedList')
@@ -22,8 +22,9 @@ mongoose
 
 const PORT = 3000;
 
-app.use('/dogs', dogsRouter);
+app.use('/jobs', jobsRouter);
 app.use('/users', usersRouter);
+app.use('/companies', companiesRouter);
 
 app.use((err, req, res, next) => {
   return res
@@ -32,5 +33,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Dogs API is listening on port ${PORT}`);
+  console.log(`jobs API is listening on port ${PORT}`);
 });
