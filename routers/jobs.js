@@ -9,7 +9,7 @@ router
   .post(jobs.createJob);
 
 router
-  .route('/:JobId')
+  .route('/:jobId')
   .get(jobs.readJob)
   .patch(jobs.updateJob)
   .delete(jobs.deleteJob);

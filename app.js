@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const ApiError = require('./helpers/apiError');
 
 const { jobsRouter, usersRouter, companiesRouter } = require('./routers');
 
@@ -27,9 +28,10 @@ app.use('/users', usersRouter);
 app.use('/companies', companiesRouter);
 
 app.use((err, req, res, next) => {
-  return res
-    .status(err.status || 500)
-    .json({ message: err.message || 'Internal Server Error' });
+  if (!(err instanceof ApiError)) {
+    err = new ApiError(500, 'Internal Server Error', err.message);
+  }
+  return res.json(err);
 });
 
 app.listen(PORT, () => {

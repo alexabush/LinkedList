@@ -30,13 +30,7 @@ const userSchema = new mongoose.Schema(
         endDate: String
       }
     ],
-    skills: [],
-    dogs: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Dog'
-      }
-    ]
+    skills: []
   },
   { timestamp: true }
 );
