@@ -24,7 +24,7 @@ function createUser(req, res, next) {
 }
 
 function readUser(req, res, next) {
-  User.findById(req.params.userId)
+  User.findOne({ username: req.params.username })
     .then(user => {
       if (!user) {
         throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
@@ -42,7 +42,10 @@ function readUser(req, res, next) {
 ////////////////////////////////////////////////////
 
 function updateUser(req, res, next) {
-  User.findByIdAndUpdate(req.params.userId, req.body, { new: true })
+  // User.findByIdAndUpdate(req.params.userId, req.body, { new: true })
+  User.findOneAndUpdate({ username: req.params.username }, req.body, {
+    new: true
+  })
     .then(user => {
       if (!user) {
         throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
@@ -60,7 +63,7 @@ function updateUser(req, res, next) {
 //company.employees's array
 ////////////////////////////////////////////////////
 function deleteUser(req, res, next) {
-  User.findByIdAndRemove(req.params.userId)
+  User.findOneAndRemove({ username: req.params.username })
     .then(user => {
       if (!user) {
         throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');

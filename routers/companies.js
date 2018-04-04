@@ -9,7 +9,7 @@ router
   .post(companies.createCompany);
 
 router
-  .route('/:companyId')
+  .route('/:handle')
   .get(companies.readCompany)
   .patch(companies.updateCompany)
   .delete(companies.deleteCompany);

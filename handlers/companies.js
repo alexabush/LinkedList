@@ -24,7 +24,7 @@ function createCompany(req, res, next) {
 }
 
 function readCompany(req, res, next) {
-  Company.findById(req.params.companyId)
+  Company.findOne({ handle: req.params.handle })
     .then(company => {
       if (!company) {
         throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
@@ -42,7 +42,9 @@ function readCompany(req, res, next) {
 ////////////////////////////////////////////////////
 
 function updateCompany(req, res, next) {
-  Company.findByIdAndUpdate(req.params.companyId, req.body, { new: true })
+  Company.findOneAndUpdate({ handle: req.params.handle }, req.body, {
+    new: true
+  })
     .then(company => {
       if (!company) {
         throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
@@ -60,7 +62,7 @@ function updateCompany(req, res, next) {
 //company.employees's array
 ////////////////////////////////////////////////////
 function deleteCompany(req, res, next) {
-  Company.findByIdAndRemove(req.params.companyId)
+  Company.findOneAndRemove({ handle: req.params.handle })
     .then(company => {
       if (!company) {
         throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
