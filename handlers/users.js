@@ -47,13 +47,17 @@ function readUser(req, res, next) {
 
 async function updateUser(req, res, next) {
   const userData = req.body;
+  console.log('WE ENTED THE FUNCTION');
+  // if (userData.currentCompany) {
+  // const user = await User.findOne({ username: req.params.username });
+  // Company.findByIdAndUpdate(user.currentCompany, {
+  //   $pull: { employees: user.id }
+  // });
+  // const { id } = await Company.findOne({ name: userData.currentCompany });
+  // userData.currentCompany = id;
+  // }
 
-  if (userData.currentCompany) {
-    const { id } = await Company.findOne({ name: userData.currentCompany });
-    userData.currentCompany = id;
-  }
-
-  User.findOneAndUpdate({ username: req.params.username }, userData, {
+  return User.findOneAndUpdate({ username: req.params.username }, userData, {
     new: true
   })
     .then(user => {

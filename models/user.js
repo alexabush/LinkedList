@@ -49,6 +49,34 @@ userSchema.post('findOneAndUpdate', user => {
   });
 });
 
+userSchema.pre('findOneAndUpdate', user => {
+  Company.findByIdAndUpdate(
+    user.currentCompany,
+    {
+      $addToSet: { employees: user.id }
+    },
+    {
+      new: true
+    }
+  ).then(() => {
+    console.log('Patch Post Hook Ran');
+  });
+});
+
+userSchema.post('findOneAndUpdate', user => {
+  Company.findByIdAndUpdate(
+    user.currentCompany,
+    {
+      $addToSet: { employees: user.id }
+    },
+    {
+      new: true
+    }
+  ).then(() => {
+    console.log('Patch Post Hook Ran');
+  });
+});
+
 userSchema.post('findOneAndRemove', user => {
   Company.findByIdAndUpdate(
     user.currentCompany,
