@@ -3,11 +3,11 @@ const Company = require('./company');
 
 const userSchema = new mongoose.Schema(
   {
-    first_name: String,
-    last_name: String,
-    username: String,
-    email: String,
-    password: String,
+    first_name: { type: String, required: 'Value Required' },
+    last_name: { type: String, required: 'Value Required' },
+    username: { type: String, required: 'Value Required' },
+    email: { type: String, required: 'Value Required' },
+    password: { type: String, required: 'Value Required' },
     currentCompany: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Company'

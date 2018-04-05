@@ -7,7 +7,9 @@ const jobSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Company'
     },
-    salary: Number
+    salary: Number,
+    //equity should be a float. should be expressed as a percentage
+    equity: Number
   },
   { timestamp: true }
 );

@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 const companySchema = new mongoose.Schema(
   {
-    name: String,
-    email: String,
-    handle: String,
-    password: String,
+    name: { type: String, required: 'Required Value' },
+    email: { type: String, required: 'Required Value' },
+    handle: { type: String, required: 'Required Value' },
+    password: { type: String, required: 'Required Value' },
     logo: String,
     employees: [
       {
