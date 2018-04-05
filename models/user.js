@@ -36,18 +36,30 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.post('findOneAndUpdate', user => {
-  console.log('This is the user!!! ', user.currentCompany);
   Company.findByIdAndUpdate(
     user.currentCompany,
     {
-      $addToSet: { employees: user._id }
+      $addToSet: { employees: user.id }
     },
     {
       new: true
     }
-  ).then(company => {
-    console.log('I am the updated company', company);
-    console.log('Post Hook Ran!');
+  ).then(() => {
+    console.log('Patch Post Hook Ran');
+  });
+});
+
+userSchema.post('findOneAndRemove', user => {
+  Company.findByIdAndUpdate(
+    user.currentCompany,
+    {
+      $pull: { employees: user.id }
+    },
+    {
+      new: true
+    }
+  ).then(() => {
+    console.log('Delete Post Hook Ran');
   });
 });
 
