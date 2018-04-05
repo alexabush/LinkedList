@@ -8,19 +8,22 @@ const userSchema = new mongoose.Schema(
     username: { type: String, required: "Value Required" },
     email: { type: String, required: "Value Required" },
     password: { type: String, required: "Value Required" },
-    currentCompany: {
+    currentCompanyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company"
     },
-    // TODO: Handle edge case in which user links to company that doesn't exist
-    // currentCompanyAlt: String,
+    currentCompanyName: String,
     photo: String,
     experience: [
       {
         jobTitle: String,
-        company: String,
-        startDate: String,
-        endDate: String
+        companyName: String,
+        companyId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Company"
+        },
+        startDate: Date,
+        endDate: Date
       }
     ],
     education: [
@@ -36,31 +39,35 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.post("findOneAndUpdate", user => {
-  Company.findByIdAndUpdate(
-    user.currentCompany,
-    {
-      $addToSet: { employees: user.id }
-    },
-    {
-      new: true
-    }
-  ).then(() => {
-    console.log("Patch Post Hook Ran");
-  });
+  if (user.currentCompanyId) {
+    Company.findByIdAndUpdate(
+      user.currentCompanyId,
+      {
+        $addToSet: { employees: user.id }
+      },
+      {
+        new: true
+      }
+    ).then(() => {
+      console.log("Patch Post Hook Ran");
+    });
+  }
 });
 
 userSchema.post("findOneAndRemove", user => {
-  Company.findByIdAndUpdate(
-    user.currentCompany,
-    {
-      $pull: { employees: user.id }
-    },
-    {
-      new: true
-    }
-  ).then(() => {
-    console.log("Delete Post Hook Ran");
-  });
+  if (user.currentCompanyId) {
+    Company.findByIdAndUpdate(
+      user.currentCompanyId,
+      {
+        $pull: { employees: user.id }
+      },
+      {
+        new: true
+      }
+    ).then(() => {
+      console.log("Delete Post Hook Ran");
+    });
+  }
 });
 
 const User = mongoose.model("User", userSchema);

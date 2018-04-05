@@ -1,28 +1,28 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const companySchema = new mongoose.Schema(
   {
-    name: { type: String, required: 'Required Value' },
-    email: { type: String, required: 'Required Value' },
-    handle: { type: String, required: 'Required Value' },
-    password: { type: String, required: 'Required Value' },
+    name: { type: String, required: "Required Value" },
+    email: { type: String, required: "Required Value" },
+    handle: { type: String, required: "Required Value" },
+    password: { type: String, required: "Required Value" },
     logo: String,
     employees: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: "User"
       }
     ],
     jobs: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Job'
+        ref: "Job"
       }
     ]
   },
   { timestamp: true }
 );
-
-const company = mongoose.model('company', companySchema);
+// Remeber to delete a currentCompanyId for a user if a company is deleted
+const company = mongoose.model("company", companySchema);
 
 module.exports = company;

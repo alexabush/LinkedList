@@ -1,19 +1,19 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const jobSchema = new mongoose.Schema(
   {
-    title: String,
+    title: { type: String, required: "Required Value" },
     company: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Company'
+      ref: "Company",
+      required: "Required Value"
     },
     salary: Number,
-    //equity should be a float. should be expressed as a percentage
     equity: Number
   },
   { timestamp: true }
 );
 
-const job = mongoose.model('job', jobSchema);
+const job = mongoose.model("job", jobSchema);
 
 module.exports = job;
