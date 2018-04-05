@@ -1,7 +1,7 @@
 const { User } = require("../models");
 const Validator = require("jsonschema").Validator;
 const validator = new Validator();
-const ApiError = require("../helpers/apiError");
+const ApiError = require("../helpers/ApiError");
 const { Company } = require("../models");
 
 function readUsers(req, res, next) {
@@ -15,13 +15,9 @@ function readUsers(req, res, next) {
 }
 
 function createUser(req, res, next) {
-  User.create(req.body)
-    .then(user => {
-      return res.json(`I created a user ${user}`);
-    })
-    .catch(err => {
-      return next(new ApiError());
-    });
+  return User.createUser(new User(req.body))
+    .then(newUser => res.json(`I created a user ${newUser}`))
+    .catch(err => next(err));
 }
 
 function readUser(req, res, next) {
@@ -41,7 +37,11 @@ async function updateUser(req, res, next) {
   const userData = req.body;
   if (userData.currentCompanyName) {
     const user = await User.findOne({ username: req.params.username });
-
+    if (!user) {
+      const error = new ApiError(404, "user not found", "User not found");
+      console.log(error);
+      return next(error);
+    }
     if (user.currentCompanyId) {
       await Company.findByIdAndUpdate(user.currentCompanyId, {
         $pull: { employees: user.id }
@@ -57,19 +57,9 @@ async function updateUser(req, res, next) {
     }
   }
 
-  return User.findOneAndUpdate({ username: req.params.username }, userData, {
-    new: true
-  })
-    .then(user => {
-      if (!user) {
-        throw new ApiError(404, "Not Found Error", "Dave's not here");
-      } else {
-        return res.json(`Here is your user: ${user}`);
-      }
-    })
-    .catch(err => {
-      return next(err);
-    });
+  return User.updateUser(req.params.username, userData)
+    .then(user => res.json(`Here is your user: ${user}`))
+    .catch(err => next(err));
 }
 
 function deleteUser(req, res, next) {

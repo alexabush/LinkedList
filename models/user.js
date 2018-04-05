@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Company = require("./company");
+const ApiError = require("../helpers/ApiError");
 
 const userSchema = new mongoose.Schema(
   {
@@ -38,21 +39,67 @@ const userSchema = new mongoose.Schema(
   { timestamp: true }
 );
 
-userSchema.post("findOneAndUpdate", user => {
-  if (user.currentCompanyId) {
-    Company.findByIdAndUpdate(
-      user.currentCompanyId,
-      {
-        $addToSet: { employees: user.id }
-      },
-      {
-        new: true
-      }
-    ).then(() => {
-      console.log("Patch Post Hook Ran");
-    });
+userSchema.statics = {
+  createUser(newUser) {
+    return this.findOne({ username: newUser.username })
+      .then(user => {
+        if (user) {
+          throw new Error(`The username ${user.username} already exists`);
+        }
+        return newUser
+          .save()
+          .then(user => user)
+          .catch(err => {
+            return Promise.reject(err);
+          });
+      })
+      .catch(err => {
+        return Promise.reject(err);
+      });
+  },
+  updateUser(username, userData) {
+    return this.findOneAndUpdate({ username: username }, userData, {
+      new: true
+    })
+      .then(user => {
+        if (!user) {
+          throw new Error(`This username does not exist`);
+        }
+        if (user.currentCompanyId) {
+          return Company.findByIdAndUpdate(user.currentCompanyId, {
+            $addToSet: { employees: user.id }
+          })
+            .then(() => {
+              console.log("Company employee list updated!");
+              return user;
+            })
+            .catch(err => Promise.reject(err));
+        } else {
+          return user;
+        }
+      })
+      .catch(err => {
+        return Promise.reject(err);
+      });
   }
-});
+  // deleteUser(userId) {
+  //   return this.findOneAndRemove(userId)
+  //     .then(user => {
+  //       return Company.findOneAndUpdate(
+  //         user.currentCompanyId,
+  //         {
+  //           $pull: { employees: user._id }
+  //         },
+  //         { new: true }
+  //       )
+  //         .then(() => {
+  //           console.log("POST HOOK RAN");
+  //         })
+  //         .catch(err => Promise.reject(err));
+  //     })
+  //     .catch(err => Promise.reject(err));
+  // }
+};
 
 userSchema.post("findOneAndRemove", user => {
   if (user.currentCompanyId) {
