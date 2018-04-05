@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Company = require('./companies');
+const Company = require('./company');
 
 const userSchema = new mongoose.Schema(
   {
@@ -36,9 +36,17 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.post('findOneAndUpdate', user => {
-  Company.findOneAndUpdate(user.currentCompany, {
-    $addToSet: { employees: user.id }
-  }).then(() => {
+  console.log('This is the user!!! ', user.currentCompany);
+  Company.findByIdAndUpdate(
+    user.currentCompany,
+    {
+      $addToSet: { employees: user._id }
+    },
+    {
+      new: true
+    }
+  ).then(company => {
+    console.log('I am the updated company', company);
     console.log('Post Hook Ran!');
   });
 });
