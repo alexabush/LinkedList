@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Company = require("./company");
 
 const jobSchema = new mongoose.Schema(
   {
@@ -13,6 +14,40 @@ const jobSchema = new mongoose.Schema(
   },
   { timestamp: true }
 );
+
+jobSchema.statics = {
+  createJob(newJob) {
+    return newJob
+      .save()
+      .then(job => {
+        return Company.findByIdAndUpdate(job.company, {
+          $addToSet: { jobs: job.id }
+        })
+          .then(() => {
+            console.log("Company job list updated!");
+            return job;
+          })
+          .catch(err => Promise.reject(err));
+      })
+      .catch(err => {
+        return Promise.reject(err);
+      });
+  },
+  deleteJob(jobId) {
+    return this.findOneAndRemove(jobId)
+      .then(job => {
+        console.log("THIS IS THE JOB", job);
+        return Company.findByIdAndUpdate(job.company, {
+          $pull: { jobs: job.id }
+        })
+          .then(() => {
+            console.log("Job removed from company jobs list");
+          })
+          .catch(err => Promise.reject(err));
+      })
+      .catch(err => Promise.reject(err));
+  }
+};
 
 const job = mongoose.model("job", jobSchema);
 

@@ -1,7 +1,7 @@
-const { Job } = require('../models');
-const Validator = require('jsonschema').Validator;
+const { Job, Company } = require("../models");
+const Validator = require("jsonschema").Validator;
 const validator = new Validator();
-const ApiError = require('../helpers/apiError');
+const ApiError = require("../helpers/apiError");
 
 function readJobs(req, res, next) {
   Job.find()
@@ -13,21 +13,19 @@ function readJobs(req, res, next) {
     });
 }
 
-function createJob(req, res, next) {
-  Job.create(req.body)
-    .then(job => {
-      return res.json(`I created a job ${job}`);
-    })
-    .catch(err => {
-      return next(new ApiError());
-    });
+async function createJob(req, res, next) {
+  const { id } = await Company.findOne({ name: req.body.company });
+  req.body.company = id;
+  return Job.createJob(new Job(req.body))
+    .then(newJob => res.json(`I created a new job posting ${newJob}`))
+    .catch(err => next(err));
 }
 
 function readJob(req, res, next) {
   Job.findById(req.params.jobId)
     .then(job => {
       if (!job) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        throw new ApiError(404, "Not Found Error", "Dave's not here");
       }
       return res.json(`job info: ${job}`);
     })
@@ -35,17 +33,12 @@ function readJob(req, res, next) {
       return next(err);
     });
 }
-////////////////////////////////////////////////////
-//We'll need to update this to service the full scope of job information
-//currently we only update the information that the job provides
-//when they sign up
-////////////////////////////////////////////////////
 
 function updateJob(req, res, next) {
   Job.findByIdAndUpdate(req.params.jobId, req.body, { new: true })
     .then(job => {
       if (!job) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        throw new ApiError(404, "Not Found Error", "Dave's not here");
       } else {
         return res.json(`Here is your job: ${job}`);
       }
@@ -55,22 +48,21 @@ function updateJob(req, res, next) {
     });
 }
 
-////////////////////////////////////////////////////
-//We will need to remove the current job from the
-//company.employees's array
-////////////////////////////////////////////////////
 function deleteJob(req, res, next) {
-  Job.findByIdAndRemove(req.params.jobId)
-    .then(job => {
-      if (!job) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
-      } else {
-        return res.json(`job deleted: ${job}`);
-      }
-    })
-    .catch(err => {
-      return next(err);
-    });
+  Job.deleteJob(req.params.jobId)
+    .then(() => res.json(`Job posting deleted`))
+    .catch(err => next(err));
+  // Job.findByIdAndRemove(req.params.jobId)
+  //   .then(job => {
+  //     if (!job) {
+  //       throw new ApiError(404, "Not Found Error", "Dave's not here");
+  //     } else {
+  //       return res.json(`job deleted: ${job}`);
+  //     }
+  //   })
+  //   .catch(err => {
+  //     return next(err);
+  //   });
 }
 
 module.exports = {
