@@ -2,6 +2,7 @@ const { User } = require('../models');
 const Validator = require('jsonschema').Validator;
 const validator = new Validator();
 const ApiError = require('../helpers/apiError');
+const { Company } = require('../models');
 
 function readUsers(req, res, next) {
   User.find()
@@ -39,11 +40,20 @@ function readUser(req, res, next) {
 //We'll need to update this to service the full scope of user information
 //currently we only update the information that the user provides
 //when they sign up
+//
+//We need to account for:
+//
 ////////////////////////////////////////////////////
 
-function updateUser(req, res, next) {
-  // User.findByIdAndUpdate(req.params.userId, req.body, { new: true })
-  User.findOneAndUpdate({ username: req.params.username }, req.body, {
+async function updateUser(req, res, next) {
+  const userData = req.body;
+
+  if (userData.currentCompany) {
+    const { id } = await Company.findOne({ name: userData.currentCompany });
+    userData.currentCompany = id;
+  }
+
+  User.findOneAndUpdate({ username: req.params.username }, userData, {
     new: true
   })
     .then(user => {

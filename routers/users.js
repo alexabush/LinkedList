@@ -13,10 +13,5 @@ router
   .get(users.readUser)
   .patch(users.updateUser)
   .delete(users.deleteUser);
-// router
-//   .route('/:userId')
-//   .get(users.readUser)
-//   .patch(users.updateUser)
-//   .delete(users.deleteUser);
 
 module.exports = router;
