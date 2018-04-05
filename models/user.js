@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Company = require('./company');
+const mongoose = require("mongoose");
+const Company = require("./company");
 
 const userSchema = new mongoose.Schema(
   {
@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: 'Value Required' },
     currentCompany: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Company'
+      ref: "Company"
     },
     // TODO: Handle edge case in which user links to company that doesn't exist
     // currentCompanyAlt: String,
@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema(
   { timestamp: true }
 );
 
-userSchema.post('findOneAndUpdate', user => {
+userSchema.post("findOneAndUpdate", user => {
   Company.findByIdAndUpdate(
     user.currentCompany,
     {
@@ -45,39 +45,11 @@ userSchema.post('findOneAndUpdate', user => {
       new: true
     }
   ).then(() => {
-    console.log('Patch Post Hook Ran');
+    console.log("Patch Post Hook Ran");
   });
 });
 
-userSchema.pre('findOneAndUpdate', user => {
-  Company.findByIdAndUpdate(
-    user.currentCompany,
-    {
-      $addToSet: { employees: user.id }
-    },
-    {
-      new: true
-    }
-  ).then(() => {
-    console.log('Patch Post Hook Ran');
-  });
-});
-
-userSchema.post('findOneAndUpdate', user => {
-  Company.findByIdAndUpdate(
-    user.currentCompany,
-    {
-      $addToSet: { employees: user.id }
-    },
-    {
-      new: true
-    }
-  ).then(() => {
-    console.log('Patch Post Hook Ran');
-  });
-});
-
-userSchema.post('findOneAndRemove', user => {
+userSchema.post("findOneAndRemove", user => {
   Company.findByIdAndUpdate(
     user.currentCompany,
     {
@@ -87,10 +59,10 @@ userSchema.post('findOneAndRemove', user => {
       new: true
     }
   ).then(() => {
-    console.log('Delete Post Hook Ran');
+    console.log("Delete Post Hook Ran");
   });
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

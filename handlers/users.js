@@ -1,8 +1,8 @@
-const { User } = require('../models');
-const Validator = require('jsonschema').Validator;
+const { User } = require("../models");
+const Validator = require("jsonschema").Validator;
 const validator = new Validator();
-const ApiError = require('../helpers/apiError');
-const { Company } = require('../models');
+const ApiError = require("../helpers/apiError");
+const { Company } = require("../models");
 
 function readUsers(req, res, next) {
   User.find()
@@ -28,7 +28,7 @@ function readUser(req, res, next) {
   User.findOne({ username: req.params.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        throw new ApiError(404, "Not Found Error", "Dave's not here");
       }
       return res.json(`User info: ${user}`);
     })
@@ -47,22 +47,21 @@ function readUser(req, res, next) {
 
 async function updateUser(req, res, next) {
   const userData = req.body;
-  console.log('WE ENTED THE FUNCTION');
-  // if (userData.currentCompany) {
-  // const user = await User.findOne({ username: req.params.username });
-  // Company.findByIdAndUpdate(user.currentCompany, {
-  //   $pull: { employees: user.id }
-  // });
-  // const { id } = await Company.findOne({ name: userData.currentCompany });
-  // userData.currentCompany = id;
-  // }
+  if (userData.currentCompany) {
+    const user = await User.findOne({ username: req.params.username });
+    await Company.findByIdAndUpdate(user.currentCompany, {
+      $pull: { employees: user.id }
+    });
+    const { id } = await Company.findOne({ name: userData.currentCompany });
+    userData.currentCompany = id;
+  }
 
   return User.findOneAndUpdate({ username: req.params.username }, userData, {
     new: true
   })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        throw new ApiError(404, "Not Found Error", "Dave's not here");
       } else {
         return res.json(`Here is your user: ${user}`);
       }
@@ -72,15 +71,11 @@ async function updateUser(req, res, next) {
     });
 }
 
-////////////////////////////////////////////////////
-//We will need to remove the current user from the
-//company.employees's array
-////////////////////////////////////////////////////
 function deleteUser(req, res, next) {
   User.findOneAndRemove({ username: req.params.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        throw new ApiError(404, "Not Found Error", "Dave's not here");
       } else {
         return res.json(`User deleted: ${user}`);
       }
