@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Company = require('./company');
+const mongoose = require("mongoose");
+const Company = require("./company");
 
 const userSchema = new mongoose.Schema(
   {
@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: "Value Required" },
     currentCompanyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Company'
+      ref: "Company"
     },
     currentCompanyName: String,
     photo: String,
@@ -38,34 +38,6 @@ const userSchema = new mongoose.Schema(
   { timestamp: true }
 );
 
-<<<<<<< HEAD
-userSchema.post('findOneAndUpdate', user => {
-  Company.findByIdAndUpdate(
-    user.currentCompany,
-    {
-      $addToSet: { employees: user.id }
-    },
-    {
-      new: true
-    }
-  ).then(() => {
-    console.log('Patch Post Hook Ran');
-  });
-});
-
-userSchema.post('findOneAndRemove', user => {
-  Company.findByIdAndUpdate(
-    user.currentCompany,
-    {
-      $pull: { employees: user.id }
-    },
-    {
-      new: true
-    }
-  ).then(() => {
-    console.log('Delete Post Hook Ran');
-  });
-=======
 userSchema.statics = {
   createUser(newUser) {
     return this.findOne({ username: newUser.username })
@@ -181,9 +153,8 @@ userSchema.post("findOneAndRemove", user => {
       console.log("Delete Post Hook Ran");
     });
   }
->>>>>>> 16e784cd22523d8c2b7282276fd2ee39af3e4e7c
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
