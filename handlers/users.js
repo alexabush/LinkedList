@@ -11,7 +11,7 @@ function userAuth(req, res, next) {
   return User.findOne({ username: req.body.username })
     .then(user => {
       if (!user) {
-        return res.status(401).json({ message: "Invalid Credentials" });
+        throw new ApiError(401, "Unauthorized", "Invalid credentials.");
       }
       const isValid = bcrypt.compareSync(req.body.password, user.password);
       if (!isValid) {
@@ -61,7 +61,7 @@ async function updateUser(req, res, next) {
   if (userData.currentCompanyName) {
     const user = await User.findOne({ username: req.params.username });
     if (!user) {
-      const error = new ApiError(404, "user not found", "User not found");
+      const error = new ApiError(404, "Not Found Error", "Dave's not here");
       return next(error);
     }
     if (user.currentCompanyId) {
