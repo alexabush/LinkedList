@@ -2,32 +2,30 @@ const { User } = require('../models');
 const Validator = require('jsonschema').Validator;
 const validator = new Validator();
 const jwt = require('jsonwebtoken');
-const ApiError = require('../helpers/apiError');
+const bcrypt = require('bcrypt');
+const { formatResponse, ApiError } = require('../helpers');
 const { Company } = require('../models');
 
+const SECRET_KEY = 'apaulag';
+
 function authenticate(req, res, next) {
-  return User.findOne({ username: req.body.username }).then(
-    user => {
+  return User.findOne({ username: req.body.username })
+    .then(user => {
       if (!user) {
         return res.status(401).json({ message: 'Invalid Credentials' });
       }
-      const isValid = bcrypt.compareSync();
-      // return user.comparePassword(req.body.password, (err, isMatch) => {
-      //   if (isMatch) {
-      //     const token = jwt.sign({ name: user.name }, 'apaulag', {
-      //       expiresIn: 60 * 60
-      //     });
-      //     return res.json({
-      //       message: 'Authenticated!',
-      //       token
-      //     });
-      //   } else {
-      //     return res.status(401).json({ message: 'Invalid Credentials' });
-      //   }
-      // });
-    },
-    err => next(err)
-  );
+      const isValid = bcrypt.compareSync(req.body.data.password, user.password);
+      if (!isValid) {
+        throw new ApiError(401, 'Unauthorized', 'Invalid password.');
+      }
+      const newToken = {
+        token: jwt.sign({ username: user.username }, SECRET_KEY, {
+          expiresIn: 60 * 60
+        })
+      };
+      return res.json(formatResponse(newToken));
+    })
+    .catch(err => next(err));
 }
 
 function readUsers(req, res, next) {

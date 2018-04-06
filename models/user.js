@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Company = require('./company');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema(
   {
