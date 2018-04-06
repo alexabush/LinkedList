@@ -8,7 +8,7 @@ const { Company } = require('../models');
 
 const SECRET_KEY = 'apaulag';
 
-function authenticate(req, res, next) {
+function userAuth(req, res, next) {
   return User.findOne({ username: req.body.username })
     .then(user => {
       if (!user) {

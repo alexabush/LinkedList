@@ -8,7 +8,7 @@ router
   .get(authRequired, users.readUsers)
   .post(users.createUser);
 
-router.post('/authenticate', users.authenticate);
+router.post('/user-auth', users.userAuth);
 router
   .route('/:username')
   .get(authRequired, users.readUser)
