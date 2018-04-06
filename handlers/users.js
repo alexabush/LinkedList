@@ -1,22 +1,21 @@
-const { User } = require('../models');
-const Validator = require('jsonschema').Validator;
+const { User, Company } = require("../models");
+const Validator = require("jsonschema").Validator;
 const validator = new Validator();
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { formatResponse, ApiError } = require('../helpers');
-const { Company } = require('../models');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const { formatResponse, ApiError } = require("../helpers");
 
-const SECRET_KEY = 'apaulag';
+const SECRET_KEY = "apaulag";
 
 function userAuth(req, res, next) {
   return User.findOne({ username: req.body.username })
     .then(user => {
       if (!user) {
-        return res.status(401).json({ message: 'Invalid Credentials' });
+        return res.status(401).json({ message: "Invalid Credentials" });
       }
       const isValid = bcrypt.compareSync(req.body.data.password, user.password);
       if (!isValid) {
-        throw new ApiError(401, 'Unauthorized', 'Invalid password.');
+        throw new ApiError(401, "Unauthorized", "Invalid password.");
       }
       const newToken = {
         token: jwt.sign({ username: user.username }, SECRET_KEY, {
@@ -48,7 +47,7 @@ function readUser(req, res, next) {
   User.findOne({ username: req.params.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        throw new ApiError(404, "Not Found Error", "Dave's not here");
       }
       return res.json(`User info: ${user}`);
     })
@@ -62,7 +61,7 @@ async function updateUser(req, res, next) {
   if (userData.currentCompanyName) {
     const user = await User.findOne({ username: req.params.username });
     if (!user) {
-      const error = new ApiError(404, 'user not found', 'User not found');
+      const error = new ApiError(404, "user not found", "User not found");
       return next(error);
     }
     if (user.currentCompanyId) {
@@ -85,7 +84,7 @@ async function updateUser(req, res, next) {
   })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        throw new ApiError(404, "Not Found Error", "Dave's not here");
       } else {
         return res.json(`Here is your user: ${user}`);
       }
@@ -99,7 +98,7 @@ function deleteUser(req, res, next) {
   User.findOneAndRemove({ username: req.params.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        throw new ApiError(404, "Not Found Error", "Dave's not here");
       } else {
         return res.json(`User deleted: ${user}`);
       }
@@ -110,6 +109,7 @@ function deleteUser(req, res, next) {
 }
 
 module.exports = {
+  userAuth,
   readUsers,
   createUser,
   readUser,

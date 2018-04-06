@@ -16,7 +16,7 @@ router
 router
   .route('/:jobId')
   .get(userAuthRequired, jobs.readJob)
-  .patch(companyAuthRequired, jobs.updateJob)
+  .patch(companyAuthRequired, ensureCorrectJob, jobs.updateJob)
   .delete(companyAuthRequired, jobs.deleteJob);
 
 module.exports = router;
