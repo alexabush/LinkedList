@@ -1,0 +1,1 @@
+exports.loginRequired = require('./auth');

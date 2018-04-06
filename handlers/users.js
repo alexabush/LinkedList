@@ -1,8 +1,34 @@
 const { User } = require('../models');
 const Validator = require('jsonschema').Validator;
 const validator = new Validator();
+const jwt = require('jsonwebtoken');
 const ApiError = require('../helpers/apiError');
 const { Company } = require('../models');
+
+function authenticate(req, res, next) {
+  return User.findOne({ username: req.body.username }).then(
+    user => {
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid Credentials' });
+      }
+      const isValid = bcrypt.compareSync();
+      // return user.comparePassword(req.body.password, (err, isMatch) => {
+      //   if (isMatch) {
+      //     const token = jwt.sign({ name: user.name }, 'apaulag', {
+      //       expiresIn: 60 * 60
+      //     });
+      //     return res.json({
+      //       message: 'Authenticated!',
+      //       token
+      //     });
+      //   } else {
+      //     return res.status(401).json({ message: 'Invalid Credentials' });
+      //   }
+      // });
+    },
+    err => next(err)
+  );
+}
 
 function readUsers(req, res, next) {
   User.find()
