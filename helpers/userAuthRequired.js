@@ -2,10 +2,11 @@ const jwt = require('jsonwebtoken');
 const { APIError } = require('../helpers');
 const SECRET_KEY = 'apaulag';
 
-function userAuthRequired(request, response, next) {
+async function userAuthRequired(request, response, next) {
   try {
     const token = request.headers.authorization.split(' ')[1];
-    jwt.verify(token, SECRET_KEY);
+    const returnedObj = await jwt.verify(token, SECRET_KEY);
+    //check for payload, see if user or company
     return next();
   } catch (err) {
     return next(

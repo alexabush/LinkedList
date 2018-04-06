@@ -1,17 +1,22 @@
 const express = require('express');
 const router = express.Router();
+const {
+  companyAuthRequired,
+  userAuthRequired,
+  ensureCorrectUser
+} = require('../helpers');
 
 const { jobs } = require('../handlers');
 
 router
   .route('')
-  .get(jobs.readJobs)
-  .post(jobs.createJob);
+  .get(userAuthRequired, jobs.readJobs)
+  .post(companyAuthRequired, jobs.createJob);
 
 router
   .route('/:jobId')
-  .get(jobs.readJob)
-  .patch(jobs.updateJob)
-  .delete(jobs.deleteJob);
+  .get(userAuthRequired, jobs.readJob)
+  .patch(companyAuthRequired, jobs.updateJob)
+  .delete(companyAuthRequired, jobs.deleteJob);
 
 module.exports = router;
