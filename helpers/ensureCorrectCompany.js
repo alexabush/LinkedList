@@ -2,11 +2,11 @@ const jwt = require('jsonwebtoken');
 const { ApiError } = require('../helpers');
 const SECRET_KEY = 'apaulag';
 
-function ensureCorrectUser(req, res, next) {
+function ensureCorrectCompany(req, res, next) {
   try {
     var token = req.headers.authorization.split(' ')[1];
     jwt.verify(token, SECRET_KEY, function(err, decoded) {
-      if (decoded.username === req.params.username) {
+      if (decoded.handle === req.params.handle) {
         return next();
       } else {
         return next(new ApiError(401, 'Unauthorized', 'Invalid auth token.'));
@@ -17,4 +17,4 @@ function ensureCorrectUser(req, res, next) {
   }
 }
 
-module.exports = ensureCorrectUser;
+module.exports = ensureCorrectCompany;

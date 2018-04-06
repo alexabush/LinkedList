@@ -1,7 +1,31 @@
-const { Company } = require("../models");
-const Validator = require("jsonschema").Validator;
+const { Company } = require('../models');
+const Validator = require('jsonschema').Validator;
 const validator = new Validator();
-const { formatResponse, ApiError } = require("../helpers");
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const { formatResponse, ApiError } = require('../helpers');
+
+const SECRET_KEY = 'apaulag';
+
+function companyAuth(req, res, next) {
+  return Company.findOne({ handle: req.body.handle })
+    .then(company => {
+      if (!company) {
+        return res.status(401).json({ message: 'Invalid Credentials' });
+      }
+      const isValid = bcrypt.compareSync(req.body.data.handle, company.handle);
+      if (!isValid) {
+        throw new ApiError(401, 'Unauthorized', 'Invalid handle.');
+      }
+      const newToken = {
+        token: jwt.sign({ handle: company.handle }, SECRET_KEY, {
+          expiresIn: 60 * 60
+        })
+      };
+      return res.json(formatResponse(newToken));
+    })
+    .catch(err => next(err));
+}
 
 function readCompanies(req, res, next) {
   Company.find()
@@ -27,7 +51,7 @@ function readCompany(req, res, next) {
   Company.findOne({ handle: req.params.handle })
     .then(company => {
       if (!company) {
-        throw new ApiError(404, "Not Found Error", "Dave's not here");
+        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
       }
       return res.json(`company info: ${company}`);
     })
@@ -42,7 +66,7 @@ function updateCompany(req, res, next) {
   })
     .then(company => {
       if (!company) {
-        throw new ApiError(404, "Not Found Error", "Dave's not here");
+        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
       } else {
         return res.json(`Here is your company: ${company}`);
       }
@@ -54,7 +78,7 @@ function updateCompany(req, res, next) {
 
 function deleteCompany(req, res, next) {
   Company.deleteCompany(req.params.handle)
-    .then(() => res.json(`Company deleted`))
+    .then(() => res.json('Company deleted'))
     .catch(err => next(err));
 }
 

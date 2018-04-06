@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
+
 const {
   companyAuthRequired,
   userAuthRequired,
-  ensureCorrectUser
+  ensureCorrectUser,
+  ensureCorrectCompany
 } = require('../helpers');
 
 const { jobs } = require('../handlers');
@@ -16,7 +18,7 @@ router
 router
   .route('/:jobId')
   .get(userAuthRequired, jobs.readJob)
-  .patch(companyAuthRequired, ensureCorrectJob, jobs.updateJob)
-  .delete(companyAuthRequired, jobs.deleteJob);
+  .patch(companyAuthRequired, ensureCorrectCompany, jobs.updateJob)
+  .delete(companyAuthRequired, ensureCorrectCompany, jobs.deleteJob);
 
 module.exports = router;
