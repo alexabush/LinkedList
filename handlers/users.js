@@ -40,7 +40,7 @@ function readUsers(req, res, next) {
 
 function createUser(req, res, next) {
   return User.createUser(new User(req.body))
-    .then(newUser => res.json(`I created a user ${newUser}`))
+    .then(newUser => res.status(201).json(formatResponse(newUser)))
     .catch(err => next(err));
 }
 

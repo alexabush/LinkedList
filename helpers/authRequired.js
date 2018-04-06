@@ -7,9 +7,11 @@ function authRequired(request, response, next) {
     const token = request.headers.authorization.split(' ')[1];
     jwt.verify(token, SECRET_KEY);
     return next();
-  } catch (e) {
+  } catch (err) {
     return next(
       new APIError(401, 'Unauthorized', 'Missing or invalid auth token.')
     );
   }
 }
+
+module.exports = authRequired;

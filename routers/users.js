@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authRequired } = require('../helpers');
+const { authRequired, ensureCorrectUser } = require('../helpers');
 const { users } = require('../handlers');
 
 router
@@ -12,7 +12,7 @@ router.post('/authenticate', users.authenticate);
 router
   .route('/:username')
   .get(authRequired, users.readUser)
-  .patch(authRequired, users.updateUser)
-  .delete(authRequired, users.deleteUser);
+  .patch(authRequired, ensureCorrectUser, users.updateUser)
+  .delete(authRequired, ensureCorrectUser, users.deleteUser);
 
 module.exports = router;

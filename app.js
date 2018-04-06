@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const ApiError = require('./helpers/ApiError');
+const { ApiError } = require('./helpers');
 
 const { jobsRouter, usersRouter, companiesRouter } = require('./routers');
 

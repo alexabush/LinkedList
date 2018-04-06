@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Company = require('./company');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { ApiError } = require('./helpers');
 
 const userSchema = new mongoose.Schema(
   {
@@ -44,7 +46,11 @@ userSchema.statics = {
     return this.findOne({ username: newUser.username })
       .then(user => {
         if (user) {
-          throw new Error(`The username ${user.username} already exists`);
+          throw new ApiError(
+            409,
+            'User already exists',
+            `The username ${user.username} already exists`
+          );
         }
         return newUser
           .save()
