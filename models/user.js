@@ -82,6 +82,7 @@ userSchema.statics = {
         return Promise.reject(err);
       });
   }
+  // INTENTION TO MOVE THE POST HOOK LOGIC INTO STATIC
   // deleteUser(userId) {
   //   return this.findOneAndRemove(userId)
   //     .then(user => {

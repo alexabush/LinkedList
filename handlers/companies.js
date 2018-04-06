@@ -56,17 +56,6 @@ function deleteCompany(req, res, next) {
   Company.deleteCompany(req.params.handle)
     .then(() => res.json(`Company deleted`))
     .catch(err => next(err));
-  // Company.findOneAndRemove({ handle: req.params.handle })
-  //   .then(company => {
-  //     if (!company) {
-  //       throw new ApiError(404, "Not Found Error", "Dave's not here");
-  //     } else {
-  //       return res.json(`company deleted: ${company}`);
-  //     }
-  //   })
-  //   .catch(err => {
-  //     return next(err);
-  //   });
 }
 
 module.exports = {
