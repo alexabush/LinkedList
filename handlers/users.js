@@ -13,7 +13,7 @@ function userAuth(req, res, next) {
       if (!user) {
         return res.status(401).json({ message: "Invalid Credentials" });
       }
-      const isValid = bcrypt.compareSync(req.body.data.password, user.password);
+      const isValid = bcrypt.compareSync(req.body.password, user.password);
       if (!isValid) {
         throw new ApiError(401, "Unauthorized", "Invalid password.");
       }

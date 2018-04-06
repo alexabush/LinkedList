@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { APIError } = require("../helpers");
+const { ApiError } = require("../helpers");
 const SECRET_KEY = "apaulag";
 
 function authRequired(request, response, next) {
@@ -9,7 +9,7 @@ function authRequired(request, response, next) {
     return next();
   } catch (err) {
     return next(
-      new APIError(401, "Unauthorized", "Missing or invalid auth token.")
+      new ApiError(401, "Unauthorized", "Missing or invalid auth token.")
     );
   }
 }
