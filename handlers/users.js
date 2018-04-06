@@ -1,8 +1,8 @@
-const { User } = require("../models");
-const Validator = require("jsonschema").Validator;
+const { User } = require('../models');
+const Validator = require('jsonschema').Validator;
 const validator = new Validator();
-const ApiError = require("../helpers/apiError");
-const { Company } = require("../models");
+const ApiError = require('../helpers/apiError');
+const { Company } = require('../models');
 
 function readUsers(req, res, next) {
   User.find()
@@ -28,7 +28,7 @@ function readUser(req, res, next) {
   User.findOne({ username: req.params.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, "Not Found Error", "Dave's not here");
+        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
       }
       return res.json(`User info: ${user}`);
     })
@@ -61,7 +61,7 @@ async function updateUser(req, res, next) {
   })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, "Not Found Error", "Dave's not here");
+        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
       } else {
         return res.json(`Here is your user: ${user}`);
       }
@@ -75,7 +75,7 @@ function deleteUser(req, res, next) {
   User.findOneAndRemove({ username: req.params.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, "Not Found Error", "Dave's not here");
+        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
       } else {
         return res.json(`User deleted: ${user}`);
       }
