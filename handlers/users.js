@@ -15,13 +15,9 @@ function readUsers(req, res, next) {
 }
 
 function createUser(req, res, next) {
-  User.create(req.body)
-    .then(user => {
-      return res.json(`I created a user ${user}`);
-    })
-    .catch(err => {
-      return next(new ApiError());
-    });
+  return User.createUser(new User(req.body))
+    .then(newUser => res.json(`I created a user ${newUser}`))
+    .catch(err => next(err));
 }
 
 function readUser(req, res, next) {
@@ -36,24 +32,28 @@ function readUser(req, res, next) {
       return next(err);
     });
 }
-////////////////////////////////////////////////////
-//We'll need to update this to service the full scope of user information
-//currently we only update the information that the user provides
-//when they sign up
-//
-//We need to account for:
-//
-////////////////////////////////////////////////////
 
 async function updateUser(req, res, next) {
   const userData = req.body;
-  if (userData.currentCompany) {
+  if (userData.currentCompanyName) {
     const user = await User.findOne({ username: req.params.username });
-    await Company.findByIdAndUpdate(user.currentCompany, {
-      $pull: { employees: user.id }
-    });
-    const { id } = await Company.findOne({ name: userData.currentCompany });
-    userData.currentCompany = id;
+    if (!user) {
+      const error = new ApiError(404, 'user not found', 'User not found');
+      return next(error);
+    }
+    if (user.currentCompanyId) {
+      await Company.findByIdAndUpdate(user.currentCompanyId, {
+        $pull: { employees: user.id }
+      });
+    }
+    try {
+      const { id } = await Company.findOne({
+        name: userData.currentCompanyName
+      });
+      userData.currentCompanyId = id;
+    } catch (err) {
+      userData.currentCompanyId = null;
+    }
   }
 
   return User.findOneAndUpdate({ username: req.params.username }, userData, {
