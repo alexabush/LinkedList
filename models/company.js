@@ -22,7 +22,33 @@ const companySchema = new mongoose.Schema(
   },
   { timestamp: true }
 );
-// Remeber to delete a currentCompanyId for a user if a company is deleted
-const company = mongoose.model("company", companySchema);
 
-module.exports = company;
+companySchema.statics = {
+  deleteCompany(handle) {
+    return this.findOneAndRemove({ handle: handle })
+      .then(company => {
+        return mongoose
+          .model("Job")
+          .remove({ company: company.id })
+          .then(() => {
+            console.log("Jobs removed");
+            return mongoose
+              .model("User")
+              .update(
+                { currentCompanyId: company.id },
+                { $set: { currentCompanyId: null } },
+                { multi: true }
+              )
+              .then(() => {
+                console.log("Company id removed from users");
+              })
+              .catch(err => Promise.reject(err));
+          })
+          .catch(err => Promise.reject(err));
+      })
+      .catch(err => Promise.reject(err));
+  }
+};
+const Company = mongoose.model("Company", companySchema);
+
+module.exports = Company;

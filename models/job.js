@@ -36,7 +36,6 @@ jobSchema.statics = {
   deleteJob(jobId) {
     return this.findOneAndRemove(jobId)
       .then(job => {
-        console.log("THIS IS THE JOB", job);
         return Company.findByIdAndUpdate(job.company, {
           $pull: { jobs: job.id }
         })
@@ -49,6 +48,6 @@ jobSchema.statics = {
   }
 };
 
-const job = mongoose.model("job", jobSchema);
+const Job = mongoose.model("Job", jobSchema);
 
-module.exports = job;
+module.exports = Job;

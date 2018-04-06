@@ -1,8 +1,7 @@
-const { User } = require("../models");
+const { User, Company } = require("../models");
 const Validator = require("jsonschema").Validator;
 const validator = new Validator();
 const ApiError = require("../helpers/ApiError");
-const { Company } = require("../models");
 
 function readUsers(req, res, next) {
   User.find()
@@ -39,7 +38,6 @@ async function updateUser(req, res, next) {
     const user = await User.findOne({ username: req.params.username });
     if (!user) {
       const error = new ApiError(404, "user not found", "User not found");
-      console.log(error);
       return next(error);
     }
     if (user.currentCompanyId) {

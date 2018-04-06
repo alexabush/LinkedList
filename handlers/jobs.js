@@ -52,17 +52,6 @@ function deleteJob(req, res, next) {
   Job.deleteJob(req.params.jobId)
     .then(() => res.json(`Job posting deleted`))
     .catch(err => next(err));
-  // Job.findByIdAndRemove(req.params.jobId)
-  //   .then(job => {
-  //     if (!job) {
-  //       throw new ApiError(404, "Not Found Error", "Dave's not here");
-  //     } else {
-  //       return res.json(`job deleted: ${job}`);
-  //     }
-  //   })
-  //   .catch(err => {
-  //     return next(err);
-  //   });
 }
 
 module.exports = {
