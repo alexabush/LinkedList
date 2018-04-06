@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Company = require("./company");
 const ApiError = require("../helpers/ApiError");
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
@@ -81,6 +82,16 @@ userSchema.statics = {
       .catch(err => {
         return Promise.reject(err);
       });
+  },
+  checkPassword(candidatePassword, next) {
+    // when this method is called, compare the plain text password with the password in the database.
+    return bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
+      if (err) {
+        return next(err);
+      }
+      // isMatch is a boolean which we will pass to our next function
+      return next(null, isMatch);
+    });
   }
   // INTENTION TO MOVE THE POST HOOK LOGIC INTO STATIC
   // deleteUser(userId) {
@@ -101,6 +112,34 @@ userSchema.statics = {
   //     .catch(err => Promise.reject(err));
   // }
 };
+
+userSchema.pre("save", function(monNext) {
+  if (!this.isModified("password")) {
+    return monNext();
+  }
+  return bcrypt
+    .hash(this.password, SALT_WORK_FACTOR)
+    .then(hash => {
+      this.password = hash;
+      return monNext();
+    })
+    .catch(err => next(err));
+});
+
+userSchema.pre("findOneAndUpdate", function(monNext) {
+  const password = this.getUpdate().password;
+  if (!password) {
+    return monNext();
+  }
+  try {
+    const salt = bcrypt.genSaltSync();
+    const hash = bcrypt.hashSync(password, salt);
+    this.getUpdate().password = hash;
+    return monNext();
+  } catch (error) {
+    return next(error);
+  }
+});
 
 userSchema.post("findOneAndRemove", user => {
   if (user.currentCompanyId) {
