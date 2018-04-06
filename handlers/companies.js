@@ -1,7 +1,7 @@
 const { Company } = require("../models");
 const Validator = require("jsonschema").Validator;
 const validator = new Validator();
-const ApiError = require("../helpers/apiError");
+const { formatResponse, ApiError } = require("../helpers");
 
 function readCompanies(req, res, next) {
   Company.find()

@@ -1,19 +1,19 @@
-const mongoose = require('mongoose');
-const Company = require('./company');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { ApiError } = require('./helpers');
+const mongoose = require("mongoose");
+const Company = require("./company");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { ApiError } = require("../helpers");
 
 const userSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: 'Value Required' },
-    lastName: { type: String, required: 'Value Required' },
-    username: { type: String, required: 'Value Required' },
-    email: { type: String, required: 'Value Required' },
-    password: { type: String, required: 'Value Required' },
+    firstName: { type: String, required: "Value Required" },
+    lastName: { type: String, required: "Value Required" },
+    username: { type: String, required: "Value Required" },
+    email: { type: String, required: "Value Required" },
+    password: { type: String, required: "Value Required" },
     currentCompanyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Company'
+      ref: "Company"
     },
     currentCompanyName: String,
     photo: String,
@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
         companyName: String,
         companyId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Company'
+          ref: "Company"
         },
         startDate: Date,
         endDate: Date
@@ -48,7 +48,7 @@ userSchema.statics = {
         if (user) {
           throw new ApiError(
             409,
-            'User already exists',
+            "User already exists",
             `The username ${user.username} already exists`
           );
         }
@@ -69,14 +69,18 @@ userSchema.statics = {
     })
       .then(user => {
         if (!user) {
-          throw new Error('This username does not exist');
+          throw new ApiError(
+            404,
+            "User does not exist",
+            "This username does not exist"
+          );
         }
         if (user.currentCompanyId) {
           return Company.findByIdAndUpdate(user.currentCompanyId, {
             $addToSet: { employees: user.id }
           })
             .then(() => {
-              console.log('Company employee list updated!');
+              console.log("Company employee list updated!");
               return user;
             })
             .catch(err => Promise.reject(err));
@@ -89,12 +93,10 @@ userSchema.statics = {
       });
   },
   checkPassword(candidatePassword, next) {
-    // when this method is called, compare the plain text password with the password in the database.
     return bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
       if (err) {
         return next(err);
       }
-      // isMatch is a boolean which we will pass to our next function
       return next(null, isMatch);
     });
   }
@@ -118,8 +120,8 @@ userSchema.statics = {
   // }
 };
 
-userSchema.pre('save', function(monNext) {
-  if (!this.isModified('password')) {
+userSchema.pre("save", function(monNext) {
+  if (!this.isModified("password")) {
     return monNext();
   }
   return bcrypt
@@ -131,7 +133,7 @@ userSchema.pre('save', function(monNext) {
     .catch(err => next(err));
 });
 
-userSchema.pre('findOneAndUpdate', function(monNext) {
+userSchema.pre("findOneAndUpdate", function(monNext) {
   const password = this.getUpdate().password;
   if (!password) {
     return monNext();
@@ -146,7 +148,7 @@ userSchema.pre('findOneAndUpdate', function(monNext) {
   }
 });
 
-userSchema.post('findOneAndRemove', user => {
+userSchema.post("findOneAndRemove", user => {
   if (user.currentCompanyId) {
     Company.findByIdAndUpdate(
       user.currentCompanyId,
@@ -157,11 +159,11 @@ userSchema.post('findOneAndRemove', user => {
         new: true
       }
     ).then(() => {
-      console.log('Delete Post Hook Ran');
+      console.log("Delete Post Hook Ran");
     });
   }
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
