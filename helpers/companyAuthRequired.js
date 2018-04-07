@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const { ApiError } = require("../helpers");
 const SECRET_KEY = "apaulag";
 
-function authRequired(request, response, next) {
+function companyAuthRequired(request, response, next) {
   try {
     const token = request.headers.authorization.split(" ")[1];
     jwt.verify(token, SECRET_KEY);
@@ -14,4 +14,4 @@ function authRequired(request, response, next) {
   }
 }
 
-module.exports = authRequired;
+module.exports = companyAuthRequired;
