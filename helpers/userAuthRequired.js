@@ -8,13 +8,17 @@ function userAuthRequired(request, response, next) {
     const token = request.headers.authorization.split(' ')[1];
     jwt.verify(token, SECRET_KEY);
     const decoded = jwtDecode(token);
-    console.log(decoded);
-    // if (!decoded.username === req.params.username) {
+    console.log('I RAN');
+
+    console.log('DECODED', decoded);
     if (!decoded.username) {
-      new ApiError(401, 'Unauthorized', 'Missing or invalid auth token.');
+      return next(
+        new ApiError(401, 'Unauthorized', 'Missing or invalid auth token.')
+      );
     }
     return next();
   } catch (err) {
+    console.log('I AM AN ERROR');
     return next(
       new ApiError(401, 'Unauthorized', 'Missing or invalid auth token.')
     );

@@ -10,11 +10,10 @@ const { companies } = require('../handlers');
 
 router
   .route('')
-  //this one is weird, we'll need to test for
-  // EITHER company OR user
   .get(generalAuthRequired, companies.readCompanies)
   .post(companies.createCompany);
 
+router.post('/company-auth', companies.companyAuth);
 router
   .route('/:handle')
   .get(userAuthRequired, companies.readCompany)

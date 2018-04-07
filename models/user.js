@@ -1,19 +1,19 @@
-const mongoose = require("mongoose");
-const Company = require("./company");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const { ApiError } = require("../helpers");
+const mongoose = require('mongoose');
+const Company = require('./company');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { ApiError } = require('../helpers');
 
 const userSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: "Value Required" },
-    lastName: { type: String, required: "Value Required" },
-    username: { type: String, required: "Value Required" },
-    email: { type: String, required: "Value Required" },
-    password: { type: String, required: "Value Required" },
+    firstName: { type: String, required: 'Value Required' },
+    lastName: { type: String, required: 'Value Required' },
+    username: { type: String, required: 'Value Required' },
+    email: { type: String, required: 'Value Required' },
+    password: { type: String, required: 'Value Required' },
     currentCompanyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Company"
+      ref: 'Company'
     },
     currentCompanyName: String,
     photo: String,
@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
         companyName: String,
         companyId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Company"
+          ref: 'Company'
         },
         startDate: Date,
         endDate: Date
@@ -48,7 +48,7 @@ userSchema.statics = {
         if (user) {
           throw new ApiError(
             409,
-            "User already exists",
+            'User already exists',
             `The username ${user.username} already exists`
           );
         }
@@ -71,8 +71,8 @@ userSchema.statics = {
         if (!user) {
           throw new ApiError(
             404,
-            "User does not exist",
-            "This username does not exist"
+            'User does not exist',
+            'This username does not exist'
           );
         }
         if (user.currentCompanyId) {
@@ -80,7 +80,7 @@ userSchema.statics = {
             $addToSet: { employees: user.id }
           })
             .then(() => {
-              console.log("Company employee list updated!");
+              console.log('Company employee list updated!');
               return user;
             })
             .catch(err => Promise.reject(err));
@@ -120,20 +120,20 @@ userSchema.statics = {
   // }
 };
 
-userSchema.pre("save", function(monNext) {
-  if (!this.isModified("password")) {
+userSchema.pre('save', function(monNext) {
+  if (!this.isModified('password')) {
     return monNext();
   }
   return bcrypt
-    .hash(this.password, SALT_WORK_FACTOR)
+    .hash(this.password, 10)
     .then(hash => {
       this.password = hash;
       return monNext();
     })
-    .catch(err => next(err));
+    .catch(err => monNext(err));
 });
 
-userSchema.pre("findOneAndUpdate", function(monNext) {
+userSchema.pre('findOneAndUpdate', function(monNext) {
   const password = this.getUpdate().password;
   if (!password) {
     return monNext();
@@ -144,11 +144,11 @@ userSchema.pre("findOneAndUpdate", function(monNext) {
     this.getUpdate().password = hash;
     return monNext();
   } catch (error) {
-    return next(error);
+    return monNext(error);
   }
 });
 
-userSchema.post("findOneAndRemove", user => {
+userSchema.post('findOneAndRemove', user => {
   if (user.currentCompanyId) {
     Company.findByIdAndUpdate(
       user.currentCompanyId,
@@ -159,11 +159,11 @@ userSchema.post("findOneAndRemove", user => {
         new: true
       }
     ).then(() => {
-      console.log("Delete Post Hook Ran");
+      console.log('Delete Post Hook Ran');
     });
   }
 });
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;
