@@ -1,21 +1,22 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 const {
   userAuthRequired,
   companyAuthRequired,
+  generalAuthRequired,
   ensureCorrectCompany
-} = require("../helpers");
-const { companies } = require("../handlers");
+} = require('../helpers');
+const { companies } = require('../handlers');
 
 router
-  .route("")
+  .route('')
   //this one is weird, we'll need to test for
   // EITHER company OR user
-  .get(companies.readCompanies)
+  .get(generalAuthRequired, companies.readCompanies)
   .post(companies.createCompany);
 
 router
-  .route("/:handle")
+  .route('/:handle')
   .get(userAuthRequired, companies.readCompany)
   .patch(companyAuthRequired, ensureCorrectCompany, companies.updateCompany)
   .delete(companyAuthRequired, ensureCorrectCompany, companies.deleteCompany);

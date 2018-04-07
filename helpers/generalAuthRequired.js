@@ -1,18 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { ApiError } = require('../helpers');
 const SECRET_KEY = 'apaulag';
-var jwtDecode = require('jwt-decode');
 
-function userAuthRequired(request, response, next) {
+function generalAuthRequired(request, response, next) {
   try {
     const token = request.headers.authorization.split(' ')[1];
     jwt.verify(token, SECRET_KEY);
-    const decoded = jwtDecode(token);
-    console.log(decoded);
-    // if (!decoded.username === req.params.username) {
-    if (!decoded.username) {
-      new ApiError(401, 'Unauthorized', 'Missing or invalid auth token.');
-    }
     return next();
   } catch (err) {
     return next(
@@ -21,4 +14,4 @@ function userAuthRequired(request, response, next) {
   }
 }
 
-module.exports = userAuthRequired;
+module.exports = generalAuthRequired;
