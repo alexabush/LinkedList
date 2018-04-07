@@ -9,9 +9,10 @@ function companyAuthRequired(request, response, next) {
     jwt.verify(token, SECRET_KEY);
     const decoded = jwtDecode(token);
     console.log(decoded);
-    // if (!decoded.handle === req.params.handle) {
     if (!decoded.handle) {
-      new ApiError(401, 'Unauthorized', 'Missing or invalid auth token.');
+      return next(
+        new ApiError(401, 'Unauthorized', 'Missing or invalid auth token.')
+      );
     }
     return next();
   } catch (err) {

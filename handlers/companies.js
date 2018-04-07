@@ -10,10 +10,12 @@ const SECRET_KEY = "apaulag";
 function companyAuth(req, res, next) {
   return Company.findOne({ handle: req.body.handle })
     .then(company => {
+      console.log(`THIS IS COMPANY ${company}`);
       if (!company) {
         return res.status(401).json({ message: "Invalid Credentials" });
       }
-      const isValid = bcrypt.compareSync(req.body.data.handle, company.handle);
+      const isValid = bcrypt.compareSync(req.body.password, company.password);
+      console.log('IS VALID', isValid);
       if (!isValid) {
         throw new ApiError(401, "Unauthorized", "Invalid handle.");
       }
@@ -38,12 +40,12 @@ function readCompanies(req, res, next) {
 }
 
 function createCompany(req, res, next) {
-  Company.create(req.body)
-    .then(company => {
-      return res.json(`I created a company ${company}`);
+  return Company.createCompany(new Company(req.body))
+    .then(newCompany => {
+      return res.status(201).json(formatResponse(newCompany));
     })
     .catch(err => {
-      return next(new ApiError());
+      return next(err);
     });
 }
 
@@ -83,6 +85,7 @@ function deleteCompany(req, res, next) {
 }
 
 module.exports = {
+  companyAuth,
   readCompanies,
   createCompany,
   readCompany,
