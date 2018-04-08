@@ -5,17 +5,12 @@ const { Company, Job } = require('../models');
 
 function ensureCorrectCompany(req, res, next) {
   try {
-    console.log('FAIL0');
-
     var token = req.headers.authorization.split(' ')[1];
     jwt.verify(token, SECRET_KEY, async function(err, decoded) {
-      console.log('FAIL1');
-
       if (decoded.handle === req.params.handle) {
         return next();
       }
       const jobId = req.params.jobId;
-      console.log('FAIL2');
       try {
         const job = await Job.findById(jobId);
         const { handle } = await Company.findById(job.company);
@@ -29,7 +24,6 @@ function ensureCorrectCompany(req, res, next) {
       }
     });
   } catch (err) {
-    console.log('FAIL5');
     return next(new ApiError(401, 'Unauthorized', 'Missing auth token.'));
   }
 }
