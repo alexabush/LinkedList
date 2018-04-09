@@ -18,6 +18,6 @@ router
   .route("/:handle")
   .get(userAuthRequired, companies.readCompany)
   .patch(companyAuthRequired, ensureCorrectCompany, companies.updateCompany)
-  .delete(companies.deleteCompany);
+  .delete(companyAuthRequired, ensureCorrectCompany, companies.deleteCompany);
 
 module.exports = router;
