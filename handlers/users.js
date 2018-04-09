@@ -85,9 +85,6 @@ async function updateUser(req, res, next) {
     }
     //adds user id to company's employee array
     //does this need to be in try/catch block?
-    console.log('NEW USER DATA', newUserData);
-    console.log('SAVED USER', savedUser);
-
     await Company.findByIdAndUpdate(newUserData.currentCompanyId, {
       $addToSet: { employees: savedUser.id }
     });
