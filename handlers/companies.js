@@ -10,12 +10,10 @@ const SECRET_KEY = 'apaulag';
 function companyAuth(req, res, next) {
   return Company.findOne({ handle: req.body.handle })
     .then(company => {
-      console.log(`THIS IS COMPANY ${company}`);
       if (!company) {
         return res.status(401).json({ message: 'Invalid Credentials' });
       }
       const isValid = bcrypt.compareSync(req.body.password, company.password);
-      console.log('IS VALID', isValid);
       if (!isValid) {
         throw new ApiError(401, 'Unauthorized', 'Invalid handle.');
       }
