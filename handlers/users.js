@@ -56,7 +56,7 @@ function readUser(req, res, next) {
     });
 }
 
-async function updateUser(req, res, next) {
+function updateUser(req, res, next) {
   return User.updateUser(req.params.username, req.body)
     .then(user => res.status(201).json(formatResponse(user)))
     .catch(err => next(err));
