@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
       {
         institution: String,
         degree: String,
-        endDate: String
+        endDate: Date
       }
     ],
     skills: []

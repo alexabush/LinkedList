@@ -1,0 +1,146 @@
+{
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "firstName": {
+      "$id": "/properties/firstName",
+      "type": "string",
+      "title": "The Firstname Schema ",
+      "default": "",
+      "examples": ["Dwyane"],
+      "minLength": 1,
+      "maxLength": 55
+    },
+    "lastName": {
+      "$id": "/properties/lastName",
+      "type": "string",
+      "title": "The Lastname Schema ",
+      "default": "",
+      "examples": ["Johnson"],
+      "minLength": 1,
+      "maxLength": 55
+    },
+    "username": {
+      "$id": "/properties/username",
+      "type": "string",
+      "title": "The Username Schema ",
+      "default": "",
+      "examples": ["TheRock"],
+      "minLength": 1,
+      "maxLength": 55
+    },
+    "password": {
+      "$id": "/properties/password",
+      "type": "string",
+      "title": "The Password Schema ",
+      "default": "",
+      "examples": ["password"],
+      "minLength": 8,
+      "maxLength": 20
+    },
+    "email": {
+      "$id": "/properties/email",
+      "type": "string",
+      "title": "The Email Schema ",
+      "default": "",
+      "format": "email",
+      "examples": ["rocktime@gmail.com"]
+    },
+    "experience": {
+      "$id": "/properties/experience",
+      "type": "array",
+      "items": {
+        "$id": "/properties/experience/items",
+        "type": "object",
+        "properties": {
+          "jobTitle": {
+            "$id": "/properties/experience/items/properties/jobTitle",
+            "type": "string",
+            "title": "The Jobtitle Schema ",
+            "default": "",
+            "examples": ["Actor"]
+          },
+          "companyName": {
+            "$id": "/properties/experience/items/properties/companyName",
+            "type": "string",
+            "title": "The Companyname Schema ",
+            "default": "",
+            "examples": ["Universal Studios"]
+          },
+          "startDate": {
+            "$id": "/properties/experience/items/properties/startDate",
+            "type": "string",
+            "title": "The Startdate Schema ",
+            "default": "",
+            "format": "date",
+            "examples": ["2013-03-01"]
+          },
+          "endDate": {
+            "$id": "/properties/experience/items/properties/endDate",
+            "type": "string",
+            "title": "The Enddate Schema ",
+            "default": "",
+            "format": "date",
+            "examples": ["2013-03-01"]
+          }
+        }
+      }
+    },
+    "education": {
+      "$id": "/properties/education",
+      "type": "array",
+      "items": {
+        "$id": "/properties/education/items",
+        "type": "object",
+        "properties": {
+          "institution": {
+            "$id": "/properties/education/items/properties/institution",
+            "type": "string",
+            "title": "The Institution Schema ",
+            "default": "",
+            "examples": ["School of Rock"]
+          },
+          "degree": {
+            "$id": "/properties/education/items/properties/degree",
+            "type": "string",
+            "title": "The Degree Schema ",
+            "default": "",
+            "examples": ["Winning"]
+          },
+          "endDate": {
+            "$id": "/properties/education/items/properties/endDate",
+            "type": "string",
+            "title": "The Enddate Schema ",
+            "default": "",
+            "examples": ["2013-03-01T01:10:00"]
+          }
+        }
+      }
+    },
+    "currentCompanyName": {
+      "$id": "/properties/currentCompanyName",
+      "type": "string",
+      "title": "The Currentcompanyname Schema ",
+      "default": "",
+      "examples": ["Universal Studios"]
+    },
+    "skills": {
+      "$id": "/properties/skills",
+      "type": "array",
+      "items": {
+        "$id": "/properties/skills/items",
+        "type": "string",
+        "title": "The 0th Schema ",
+        "default": "",
+        "examples": [
+          "eyebrow-raising",
+          "movie-making",
+          "plane-jumping",
+          "Vin Diesel-beating"
+        ]
+      }
+    }
+  }
+}

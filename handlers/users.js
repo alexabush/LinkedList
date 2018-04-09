@@ -1,8 +1,10 @@
 const { User, Company } = require('../models');
 const Validator = require('jsonschema').Validator;
-const validator = new Validator();
+const v = new Validator();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const { userSchema } = require('../schemas');
+
 const { formatResponse, ApiError } = require('../helpers');
 
 const SECRET_KEY = 'apaulag';
@@ -38,6 +40,11 @@ function readUsers(req, res, next) {
 }
 
 function createUser(req, res, next) {
+  const result = v.validate(req.body, userSchema);
+  if (!result.valid) {
+    const errors = result.errors.map(e => e.message).join(', ');
+    return next({ message: errors });
+  }
   return User.createUser(new User(req.body))
     .then(newUser => res.status(201).json(formatResponse(newUser)))
     .catch(err => next(err));
@@ -57,6 +64,11 @@ function readUser(req, res, next) {
 }
 
 function updateUser(req, res, next) {
+  const result = v.validate(req.body, userSchema);
+  if (!result.valid) {
+    const errors = result.errors.map(e => e.message).join(', ');
+    return next({ message: errors });
+  }
   return User.updateUser(req.params.username, req.body)
     .then(user => res.status(201).json(formatResponse(user)))
     .catch(err => next(err));

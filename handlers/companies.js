@@ -1,9 +1,10 @@
 const { Company } = require('../models');
 const Validator = require('jsonschema').Validator;
-const validator = new Validator();
+const v = new Validator();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { formatResponse, ApiError } = require('../helpers');
+const { companySchema } = require('../schemas');
 
 const SECRET_KEY = 'apaulag';
 
@@ -36,6 +37,11 @@ function readCompanies(req, res, next) {
 }
 
 function createCompany(req, res, next) {
+  const result = v.validate(req.body, companySchema);
+  if (!result.valid) {
+    const errors = result.errors.map(e => e.message).join(', ');
+    return next({ message: errors });
+  }
   return Company.createCompany(new Company(req.body))
     .then(newCompany => res.status(201).json(formatResponse(newCompany)))
     .catch(err => next(err));
@@ -55,6 +61,11 @@ function readCompany(req, res, next) {
 }
 
 function updateCompany(req, res, next) {
+  const result = v.validate(req.body, companySchema);
+  if (!result.valid) {
+    const errors = result.errors.map(e => e.message).join(', ');
+    return next({ message: errors });
+  }
   delete req.body.handle;
   Company.findOneAndUpdate({ handle: req.params.handle }, req.body, {
     new: true
