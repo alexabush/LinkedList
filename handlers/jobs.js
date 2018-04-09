@@ -1,7 +1,7 @@
-const { Job, Company } = require("../models");
-const Validator = require("jsonschema").Validator;
+const { Job, Company } = require('../models');
+const Validator = require('jsonschema').Validator;
 const validator = new Validator();
-const { formatResponse, ApiError } = require("../helpers");
+const { formatResponse, ApiError } = require('../helpers');
 
 function readJobs(req, res, next) {
   Job.find()
@@ -18,10 +18,22 @@ async function createJob(req, res, next) {
     const { id } = await Company.findOne({ name: req.body.company });
     req.body.company = id;
     return Job.createJob(new Job(req.body))
-      .then(newJob => res.status(201).json(formatResponse(newJob)))
-      .catch(err => next(err));
+      .then(newJob =>
+        res.status(201).json(formatResponse(newJob, 'Created new job!'))
+      )
+      .catch(err =>
+        next(
+          new ApiError(
+            500,
+            'Internal Server Error',
+            'Something went wrong creating the new job'
+          )
+        )
+      );
   } catch (err) {
-    return next(err);
+    return next(
+      new ApiError(404, 'Not Found Error', 'Could not find requested company')
+    );
   }
 }
 
@@ -29,7 +41,7 @@ function readJob(req, res, next) {
   Job.findById(req.params.jobId)
     .then(job => {
       if (!job) {
-        throw new ApiError(404, "Not Found Error", "Dave's not here");
+        throw new ApiError(404, 'Not Found Error', 'Could not find job');
       }
       res.status(201).json(formatResponse(job));
     })
@@ -42,7 +54,7 @@ function updateJob(req, res, next) {
   Job.findByIdAndUpdate(req.params.jobId, req.body, { new: true })
     .then(job => {
       if (!job) {
-        throw new ApiError(404, "Not Found Error", "Dave's not here");
+        throw new ApiError(404, 'Not Found Error', 'Could not find job');
       } else {
         res.status(201).json(formatResponse(job));
       }
@@ -54,7 +66,9 @@ function updateJob(req, res, next) {
 
 function deleteJob(req, res, next) {
   Job.deleteJob(req.params.jobId)
-    .then(() => res.status(201).json(formatResponse(job)))
+    //do we want to send back the json of the object deleted?
+    //would it be more appropriate to send back a message string?
+    .then(job => res.status(201).json(formatResponse(job, 'Job Deleted!')))
     .catch(err => next(err));
 }
 
