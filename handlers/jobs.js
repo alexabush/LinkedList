@@ -18,9 +18,7 @@ async function createJob(req, res, next) {
     const { id } = await Company.findOne({ name: req.body.company });
     req.body.company = id;
     return Job.createJob(new Job(req.body))
-      .then(newJob =>
-        res.status(201).json(formatResponse(newJob, 'Created new job!'))
-      )
+      .then(newJob => res.status(201).json(formatResponse(newJob)))
       .catch(err =>
         next(
           new ApiError(
@@ -41,7 +39,7 @@ function readJob(req, res, next) {
   Job.findById(req.params.jobId)
     .then(job => {
       if (!job) {
-        throw new ApiError(404, 'Not Found Error', 'Could not find job');
+        return next(new ApiError(404, 'Not Found Error', 'Could not find job'));
       }
       res.status(201).json(formatResponse(job));
     })
@@ -54,7 +52,7 @@ function updateJob(req, res, next) {
   Job.findByIdAndUpdate(req.params.jobId, req.body, { new: true })
     .then(job => {
       if (!job) {
-        throw new ApiError(404, 'Not Found Error', 'Could not find job');
+        return next(ApiError(404, 'Not Found Error', 'Could not find job'));
       } else {
         res.status(201).json(formatResponse(job));
       }
@@ -66,9 +64,13 @@ function updateJob(req, res, next) {
 
 function deleteJob(req, res, next) {
   Job.deleteJob(req.params.jobId)
-    //do we want to send back the json of the object deleted?
-    //would it be more appropriate to send back a message string?
-    .then(job => res.status(201).json(formatResponse(job, 'Job Deleted!')))
+    .then(() =>
+      res.status(200).json({
+        status: 200,
+        title: 'Success',
+        message: 'Job was deleted'
+      })
+    )
     .catch(err => next(err));
 }
 

@@ -15,7 +15,9 @@ function companyAuth(req, res, next) {
       }
       const isValid = bcrypt.compareSync(req.body.password, company.password);
       if (!isValid) {
-        throw new ApiError(401, 'Unauthorized', 'Invalid handle or password.');
+        return next(
+          new ApiError(401, 'Unauthorized', 'Invalid handle or password.')
+        );
       }
       const newToken = {
         token: jwt.sign({ handle: company.handle }, SECRET_KEY, {
@@ -43,7 +45,7 @@ function readCompany(req, res, next) {
   Company.findOne({ handle: req.params.handle })
     .then(company => {
       if (!company) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        return next(new ApiError(404, 'Not Found Error', 'Dave\'s not here'));
       }
       return res.status(201).json(formatResponse(company));
     })
@@ -59,7 +61,7 @@ function updateCompany(req, res, next) {
   })
     .then(company => {
       if (!company) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        return next(new ApiError(404, 'Not Found Error', 'Dave\'s not here'));
       } else {
         return res.status(201).json(formatResponse(company));
       }
@@ -71,7 +73,13 @@ function updateCompany(req, res, next) {
 
 function deleteCompany(req, res, next) {
   Company.deleteCompany(req.params.handle)
-    .then(company => res.status(201).json(formatResponse(company)))
+    .then(() =>
+      res.status(200).json({
+        status: 200,
+        title: 'Success',
+        message: 'Company was deleted'
+      })
+    )
     .catch(err => next(err));
 }
 

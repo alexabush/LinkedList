@@ -28,24 +28,10 @@ jobSchema.statics = {
             console.log('Company job list updated!');
             return job;
           })
-          .catch(err =>
-            Promise.reject(
-              new ApiError(
-                404,
-                'Not Found Error',
-                'Could not find requested company'
-              )
-            )
-          );
+          .catch(err => Promise.reject(err));
       })
       .catch(err => {
-        return Promise.reject(
-          new ApiError(
-            500,
-            'Internal Server Error',
-            'Something went wrong saving the new job to the database'
-          )
-        );
+        return Promise.reject(err);
       });
   },
   deleteJob(jobId) {
@@ -54,25 +40,12 @@ jobSchema.statics = {
         return Company.findByIdAndUpdate(job.company, {
           $pull: { jobs: job.id }
         })
-          .then(job => {
+          .then(() => {
             console.log('Job removed from company jobs list');
-            return job;
           })
-          .catch(err =>
-            Promise.reject(
-              new ApiError(
-                500,
-                'Internal Server Error',
-                'Something went wrong updating the database'
-              )
-            )
-          );
+          .catch(err => Promise.reject(err));
       })
-      .catch(err =>
-        Promise.reject(
-          new ApiError(404, 'Not Found Error', 'Could not find job in database')
-        )
-      );
+      .catch(err => Promise.reject(err));
   }
 };
 

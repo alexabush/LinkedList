@@ -63,41 +63,51 @@ userSchema.statics = {
         return Promise.reject(err);
       });
   },
-  updateUser(username, reqBody) {
-    //is this neccesary?
+  async updateUser(username, reqBody) {
+    //prevents user from changing the username
     delete reqBody.username;
-    return this.findOne({ username: username }).then(async user => {
+    let user = null;
+    try {
+      user = await this.findOne({ username: username });
       if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'This user does not exist');
+        throw new ApiError(401, 'Not Found Error', 'This user does not exist');
       }
+    } catch (err) {
+      return Promise.reject(err);
+    }
 
-      if (reqBody.currentCompanyName || reqBody.currentCompanyName === '') {
-        if (user.currentCompanyId) {
+    if (reqBody.currentCompanyName || reqBody.currentCompanyName === '') {
+      if (user.currentCompanyId) {
+        try {
           await Company.findByIdAndUpdate(user.currentCompanyId, {
             $pull: { employees: user.id }
           });
-        }
-      }
-      if (reqBody.currentCompanyName) {
-        try {
-          const { id } = await Company.findOneAndUpdate(
-            { name: reqBody.currentCompanyName },
-            { $addToSet: { employees: user.id } }
-          );
-          reqBody.currentCompanyId = id;
         } catch (err) {
-          reqBody.currentCompanyId = null;
+          return Promise.reject(err);
         }
       }
+    }
 
-      return User.findOneAndUpdate({ username: username }, reqBody, {
+    if (reqBody.currentCompanyName) {
+      try {
+        //separate findOne and update functions
+        const { id } = await Company.findOneAndUpdate(
+          { name: reqBody.currentCompanyName },
+          { $addToSet: { employees: user.id } }
+        );
+        reqBody.currentCompanyId = id;
+      } catch (err) {
+        reqBody.currentCompanyId = null;
+      }
+    }
+
+    try {
+      return await User.findOneAndUpdate({ username: username }, reqBody, {
         new: true
-      })
-        .then(user => {
-          return user;
-        })
-        .catch(err => Promise.reject(err));
-    });
+      });
+    } catch (err) {
+      return Promise.reject(err);
+    }
   },
   checkPassword(candidatePassword, next) {
     return bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {

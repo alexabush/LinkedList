@@ -1,6 +1,6 @@
-function formatResponse(json, message = 'Success!') {
+function formatResponse(json) {
   delete json.password; // if there is a password, delete it from response
-  return { message, data: json };
+  return { data: json };
 }
 
 module.exports = formatResponse;

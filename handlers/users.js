@@ -11,11 +11,11 @@ function userAuth(req, res, next) {
   return User.findOne({ username: req.body.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(401, 'Unauthorized', 'Invalid credentials.');
+        return next(new ApiError(401, 'Unauthorized', 'Invalid credentials.'));
       }
       const isValid = bcrypt.compareSync(req.body.password, user.password);
       if (!isValid) {
-        throw new ApiError(401, 'Unauthorized', 'Invalid password.');
+        return next(new ApiError(401, 'Unauthorized', 'Invalid password.'));
       }
       const newToken = {
         token: jwt.sign({ username: user.username }, SECRET_KEY, {
@@ -33,7 +33,7 @@ function readUsers(req, res, next) {
       return res.status(201).json(formatResponse(users));
     })
     .catch(err => {
-      return next(new ApiError());
+      return next(err);
     });
 }
 
@@ -47,7 +47,7 @@ function readUser(req, res, next) {
   User.findOne({ username: req.params.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        return next(new ApiError(404, 'Not Found Error', 'Dave\'s not here'));
       }
       return res.status(201).json(formatResponse(user));
     })
@@ -64,7 +64,13 @@ function updateUser(req, res, next) {
 
 function deleteUser(req, res, next) {
   User.deleteUser(req.params.username)
-    .then(user => res.status(201).json(formatResponse(user)))
+    .then(() =>
+      res.status(200).json({
+        status: 200,
+        title: 'Success',
+        message: 'User was deleted'
+      })
+    )
     .catch(err => next(err));
 }
 

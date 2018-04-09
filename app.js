@@ -30,10 +30,13 @@ app.use('/users', usersRouter);
 app.use('/companies', companiesRouter);
 
 app.use((err, req, res, next) => {
+  let apiError;
   if (!(err instanceof ApiError)) {
-    err = new ApiError(500, 'Internal Server Error', err.message);
+    apiError = new ApiError(500, 'Internal Server Error', err.message);
+  } else {
+    apiError = err;
   }
-  return res.json(err);
+  return res.json(apiError);
 });
 
 app.listen(PORT, () => {
