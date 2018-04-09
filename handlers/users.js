@@ -57,43 +57,57 @@ function readUser(req, res, next) {
 }
 
 async function updateUser(req, res, next) {
-  const userData = req.body;
+  const newUserData = req.body;
   //is there a way to include all code in one try-catch block?
-  if (userData.currentCompanyName) {
+  if (newUserData.currentCompanyName) {
     //does this need to be in a try/catch?
-    const user = await User.findOne({ username: req.params.username });
-    if (!user) {
+    const savedUser = await User.findOne({ username: req.params.username });
+    if (!savedUser) {
       const error = new ApiError(404, 'Not Found Error', 'Dave\'s not here');
       return next(error);
     }
-    if (user.currentCompanyId) {
+    if (savedUser.currentCompanyId) {
       //does this need to be in a try/catch?
-      await Company.findByIdAndUpdate(user.currentCompanyId, {
-        $pull: { employees: user.id }
-      });
+      const savedCompany = await Company.findByIdAndUpdate(
+        savedUser.currentCompanyId,
+        {
+          $pull: { employees: savedUser.id }
+        }
+      );
     }
     try {
       const { id } = await Company.findOne({
-        name: userData.currentCompanyName
+        name: newUserData.currentCompanyName
       });
-      userData.currentCompanyId = id;
+      newUserData.currentCompanyId = id;
     } catch (err) {
-      userData.currentCompanyId = null;
+      newUserData.currentCompanyId = null;
     }
+    //adds user id to company's employee array
+    //does this need to be in try/catch block?
+    console.log('NEW USER DATA', newUserData);
+    console.log('SAVED USER', savedUser);
+
+    await Company.findByIdAndUpdate(newUserData.currentCompanyId, {
+      $addToSet: { employees: savedUser.id }
+    });
   }
   //refactored to use async await
+  /*
+    finds user in db and adds or modifies user data according to the req.body
+  */
   try {
-    const user = await User.findOneAndUpdate(
+    const newUser = await User.findOneAndUpdate(
       { username: req.params.username },
-      userData,
+      newUserData,
       {
         new: true
       }
     );
-    if (!user) {
+    if (!newUser) {
       throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
     } else {
-      return res.json(`Here is your user: ${user}`);
+      return res.json(`Here is your user: ${newUser}`);
     }
   } catch (err) {
     return next(err);
