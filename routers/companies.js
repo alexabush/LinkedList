@@ -1,21 +1,21 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   userAuthRequired,
   companyAuthRequired,
   generalAuthRequired,
   ensureCorrectCompany
-} = require('../helpers');
-const { companies } = require('../handlers');
+} = require("../helpers");
+const { companies } = require("../handlers");
 
 router
-  .route('')
+  .route("")
   .get(generalAuthRequired, companies.readCompanies)
   .post(companies.createCompany);
 
-router.post('/company-auth', companies.companyAuth);
+router.post("/company-auth", companies.companyAuth);
 router
-  .route('/:handle')
+  .route("/:handle")
   .get(userAuthRequired, companies.readCompany)
   .patch(companyAuthRequired, ensureCorrectCompany, companies.updateCompany)
   .delete(companyAuthRequired, ensureCorrectCompany, companies.deleteCompany);

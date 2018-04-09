@@ -1,25 +1,29 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { ApiError } = require('../helpers');
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { ApiError } = require("../helpers");
 
 const companySchema = new mongoose.Schema(
   {
-    name: { type: String, required: 'Required Value' },
-    email: { type: String, required: 'Required Value' },
-    handle: { type: String, required: 'Required Value', unique: true },
-    password: { type: String, required: 'Required Value' },
+    name: { type: String, required: "Required Value" },
+    email: { type: String, required: "Required Value" },
+    handle: {
+      type: String,
+      required: "Required Value",
+      unique: true
+    },
+    password: { type: String, required: "Required Value" },
     logo: String,
     employees: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: "User"
       }
     ],
     jobs: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Job'
+        ref: "Job"
       }
     ]
   },
@@ -33,7 +37,7 @@ companySchema.statics = {
         if (company) {
           throw new ApiError(
             409,
-            'Company already exists',
+            "Company already exists",
             `The handle ${company.handle} already exists`
           );
         }
@@ -59,20 +63,24 @@ companySchema.statics = {
   deleteCompany(handle) {
     return this.findOneAndRemove({ handle: handle })
       .then(company => {
+        if (!company) {
+          throw new ApiError(404, "Not Found", "The handle can not be found");
+        }
         return mongoose
-          .model('Job')
+          .model("Job")
           .remove({ company: company.id })
           .then(() => {
-            console.log('Jobs removed');
+            console.log("Jobs removed");
             return mongoose
-              .model('User')
+              .model("User")
               .update(
                 { currentCompanyId: company.id },
                 { $set: { currentCompanyId: null } },
                 { multi: true }
               )
               .then(() => {
-                console.log('Company id removed from users');
+                return company;
+                console.log("Company id removed from users");
               })
               .catch(err => Promise.reject(err));
           })
@@ -82,8 +90,8 @@ companySchema.statics = {
   }
 };
 
-companySchema.pre('save', function(monNext) {
-  if (!this.isModified('password')) {
+companySchema.pre("save", function(monNext) {
+  if (!this.isModified("password")) {
     return monNext();
   }
   return bcrypt
@@ -95,7 +103,7 @@ companySchema.pre('save', function(monNext) {
     .catch(err => monNext(err));
 });
 
-companySchema.pre('findOneAndUpdate', function(monNext) {
+companySchema.pre("findOneAndUpdate", function(monNext) {
   const password = this.getUpdate().password;
   if (!password) {
     return monNext();
@@ -110,6 +118,6 @@ companySchema.pre('findOneAndUpdate', function(monNext) {
   }
 });
 
-const Company = mongoose.model('Company', companySchema);
+const Company = mongoose.model("Company", companySchema);
 
 module.exports = Company;

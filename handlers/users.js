@@ -30,7 +30,7 @@ function userAuth(req, res, next) {
 function readUsers(req, res, next) {
   User.find()
     .then(users => {
-      return res.json(`All users: ${users}`);
+      return res.status(201).json(formatResponse(users));
     })
     .catch(err => {
       return next(new ApiError());
@@ -49,7 +49,7 @@ function readUser(req, res, next) {
       if (!user) {
         throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
       }
-      return res.json(`User info: ${user}`);
+      return res.status(201).json(formatResponse(user));
     })
     .catch(err => {
       return next(err);
@@ -57,86 +57,15 @@ function readUser(req, res, next) {
 }
 
 async function updateUser(req, res, next) {
-  const newUserData = req.body;
-  //is there a way to include all code in one try-catch block?
-  // || newUserData.currentCompanyName === '' //need to add code to deal with empty string submission
-  if (newUserData.currentCompanyName) {
-    //does this need to be in a try/catch?
-    const savedUser = await User.findOne({ username: req.params.username });
-    if (!savedUser) {
-      const error = new ApiError(404, 'Not Found Error', 'Dave\'s not here');
-      return next(error);
-    }
-    if (savedUser.currentCompanyId) {
-      //does this need to be in a try/catch?
-      const savedCompany = await Company.findByIdAndUpdate(
-        savedUser.currentCompanyId,
-        {
-          $pull: { employees: savedUser.id }
-        }
-      );
-    }
-    try {
-      const { id } = await Company.findOne({
-        name: newUserData.currentCompanyName
-      });
-      newUserData.currentCompanyId = id;
-    } catch (err) {
-      newUserData.currentCompanyId = null;
-    }
-    //adds user id to company's employee array
-    //does this need to be in try/catch block?
-    await Company.findByIdAndUpdate(newUserData.currentCompanyId, {
-      $addToSet: { employees: savedUser.id }
-    });
-  }
-  //refactored to use async await
-  /*
-    finds user in db and adds or modifies user data according to the req.body
-  */
-  try {
-    const newUser = await User.findOneAndUpdate(
-      { username: req.params.username },
-      newUserData,
-      {
-        new: true
-      }
-    );
-    if (!newUser) {
-      throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
-    } else {
-      return res.json(`Here is your user: ${newUser}`);
-    }
-  } catch (err) {
-    return next(err);
-  }
-  // return User.findOneAndUpdate({ username: req.params.username }, userData, {
-  //   new: true
-  // })
-  //   .then(user => {
-  //     if (!user) {
-  //       throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
-  //     } else {
-  //       return res.json(`Here is your user: ${user}`);
-  //     }
-  //   })
-  //   .catch(err => {
-  //     return next(err);
-  //   });
+  return User.updateUser(req.params.username, req.body)
+    .then(user => res.status(201).json(formatResponse(user)))
+    .catch(err => next(err));
 }
 
 function deleteUser(req, res, next) {
-  User.findOneAndRemove({ username: req.params.username })
-    .then(user => {
-      if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
-      } else {
-        return res.json(`User deleted: ${user}`);
-      }
-    })
-    .catch(err => {
-      return next(err);
-    });
+  User.deleteUser(req.params.username)
+    .then(user => res.status(201).json(formatResponse(user)))
+    .catch(err => next(err));
 }
 
 module.exports = {

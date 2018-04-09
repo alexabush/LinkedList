@@ -15,7 +15,7 @@ function companyAuth(req, res, next) {
       }
       const isValid = bcrypt.compareSync(req.body.password, company.password);
       if (!isValid) {
-        throw new ApiError(401, 'Unauthorized', 'Invalid handle.');
+        throw new ApiError(401, 'Unauthorized', 'Invalid handle or password.');
       }
       const newToken = {
         token: jwt.sign({ handle: company.handle }, SECRET_KEY, {
@@ -29,22 +29,14 @@ function companyAuth(req, res, next) {
 
 function readCompanies(req, res, next) {
   Company.find()
-    .then(companies => {
-      return res.json(`All companies: ${companies}`);
-    })
-    .catch(err => {
-      return next(new ApiError());
-    });
+    .then(companies => res.status(201).json(formatResponse(companies)))
+    .catch(err => next(new ApiError()));
 }
 
 function createCompany(req, res, next) {
   return Company.createCompany(new Company(req.body))
-    .then(newCompany => {
-      return res.status(201).json(formatResponse(newCompany));
-    })
-    .catch(err => {
-      return next(err);
-    });
+    .then(newCompany => res.status(201).json(formatResponse(newCompany)))
+    .catch(err => next(err));
 }
 
 function readCompany(req, res, next) {
@@ -53,7 +45,7 @@ function readCompany(req, res, next) {
       if (!company) {
         throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
       }
-      return res.json(`company info: ${company}`);
+      return res.status(201).json(formatResponse(company));
     })
     .catch(err => {
       return next(err);
@@ -61,6 +53,7 @@ function readCompany(req, res, next) {
 }
 
 function updateCompany(req, res, next) {
+  delete req.body.handle;
   Company.findOneAndUpdate({ handle: req.params.handle }, req.body, {
     new: true
   })
@@ -68,7 +61,7 @@ function updateCompany(req, res, next) {
       if (!company) {
         throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
       } else {
-        return res.json(`Here is your company: ${company}`);
+        return res.status(201).json(formatResponse(company));
       }
     })
     .catch(err => {
@@ -78,7 +71,7 @@ function updateCompany(req, res, next) {
 
 function deleteCompany(req, res, next) {
   Company.deleteCompany(req.params.handle)
-    .then(() => res.json('Company deleted'))
+    .then(company => res.status(201).json(formatResponse(company)))
     .catch(err => next(err));
 }
 
