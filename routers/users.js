@@ -1,16 +1,16 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const { userAuthRequired, ensureCorrectUser } = require("../helpers");
-const { users } = require("../handlers");
+const { userAuthRequired, ensureCorrectUser } = require('../helpers');
+const { users } = require('../handlers');
 
 router
-  .route("")
+  .route('')
   .get(userAuthRequired, users.readUsers)
   .post(users.createUser);
 
-router.post("/user-auth", users.userAuth);
+router.post('/user-auth', users.userAuth);
 router
-  .route("/:username")
+  .route('/:username')
   .get(userAuthRequired, users.readUser)
   .patch(userAuthRequired, ensureCorrectUser, users.updateUser)
   .delete(userAuthRequired, ensureCorrectUser, users.deleteUser);

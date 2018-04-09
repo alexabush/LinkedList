@@ -1,20 +1,19 @@
-const mongoose = require("mongoose");
-const Company = require("./company");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-
-const { ApiError } = require("../helpers");
+const mongoose = require('mongoose');
+const Company = require('./company');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { ApiError } = require('../helpers');
 
 const userSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: "Value Required" },
-    lastName: { type: String, required: "Value Required" },
-    username: { type: String, required: "Value Required" },
-    email: { type: String, required: "Value Required" },
-    password: { type: String, required: "Value Required" },
+    firstName: { type: String, required: 'Value Required' },
+    lastName: { type: String, required: 'Value Required' },
+    username: { type: String, required: 'Value Required', unique: true },
+    email: { type: String, required: 'Value Required', unique: true },
+    password: { type: String, required: 'Value Required' },
     currentCompanyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Company"
+      ref: 'Company'
     },
     currentCompanyName: String,
     photo: String,
@@ -24,7 +23,7 @@ const userSchema = new mongoose.Schema(
         companyName: String,
         companyId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Company"
+          ref: 'Company'
         },
         startDate: Date,
         endDate: Date
@@ -34,7 +33,7 @@ const userSchema = new mongoose.Schema(
       {
         institution: String,
         degree: String,
-        endDate: String
+        endDate: Date
       }
     ],
     skills: []
@@ -49,7 +48,7 @@ userSchema.statics = {
         if (user) {
           throw new ApiError(
             409,
-            "User already exists",
+            'User already exists',
             `The username ${user.username} already exists`
           );
         }
@@ -64,38 +63,51 @@ userSchema.statics = {
         return Promise.reject(err);
       });
   },
-  updateUser(username, reqBody) {
+  async updateUser(username, reqBody) {
+    //prevents user from changing the username
     delete reqBody.username;
-    return this.findOne({ username: username }).then(async user => {
+    let user = null;
+    try {
+      user = await this.findOne({ username: username });
       if (!user) {
-        throw new ApiError(404, "Not Found Error", "This user does not exist");
+        throw new ApiError(401, 'Not Found Error', 'This user does not exist');
       }
+    } catch (err) {
+      return Promise.reject(err);
+    }
 
-      if (reqBody.currentCompanyName) {
-        if (user.currentCompanyId) {
+    if (reqBody.currentCompanyName || reqBody.currentCompanyName === '') {
+      if (user.currentCompanyId) {
+        try {
           await Company.findByIdAndUpdate(user.currentCompanyId, {
             $pull: { employees: user.id }
           });
-        }
-        try {
-          const { id } = await Company.findOneAndUpdate(
-            { name: reqBody.currentCompanyName },
-            { $addToSet: { employees: user.id } }
-          );
-          reqBody.currentCompanyId = id;
         } catch (err) {
-          reqBody.currentCompanyId = null;
+          return Promise.reject(err);
         }
       }
+    }
 
-      return User.findOneAndUpdate({ username: username }, reqBody, {
+    if (reqBody.currentCompanyName) {
+      try {
+        //separate findOne and update functions
+        const { id } = await Company.findOneAndUpdate(
+          { name: reqBody.currentCompanyName },
+          { $addToSet: { employees: user.id } }
+        );
+        reqBody.currentCompanyId = id;
+      } catch (err) {
+        reqBody.currentCompanyId = null;
+      }
+    }
+
+    try {
+      return await User.findOneAndUpdate({ username: username }, reqBody, {
         new: true
-      })
-        .then(user => {
-          return user;
-        })
-        .catch(err => Promise.reject(err));
-    });
+      });
+    } catch (err) {
+      return Promise.reject(err);
+    }
   },
   checkPassword(candidatePassword, next) {
     return bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
@@ -111,8 +123,8 @@ userSchema.statics = {
         if (!user) {
           throw new ApiError(
             404,
-            "Not Found Error",
-            "This user does not exist"
+            'Not Found Error',
+            'This user does not exist'
           );
         }
         if (user.currentCompanyId)
@@ -132,8 +144,8 @@ userSchema.statics = {
   }
 };
 
-userSchema.pre("save", function(monNext) {
-  if (!this.isModified("password")) {
+userSchema.pre('save', function(monNext) {
+  if (!this.isModified('password')) {
     return monNext();
   }
   return bcrypt
@@ -145,7 +157,7 @@ userSchema.pre("save", function(monNext) {
     .catch(err => monNext(err));
 });
 
-userSchema.pre("findOneAndUpdate", function(monNext) {
+userSchema.pre('findOneAndUpdate', function(monNext) {
   const password = this.getUpdate().password;
   if (!password) {
     return monNext();
@@ -160,6 +172,6 @@ userSchema.pre("findOneAndUpdate", function(monNext) {
   }
 });
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

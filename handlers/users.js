@@ -1,21 +1,23 @@
-const { User, Company } = require("../models");
-const Validator = require("jsonschema").Validator;
-const validator = new Validator();
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const { formatResponse, ApiError } = require("../helpers");
+const { User, Company } = require('../models');
+const Validator = require('jsonschema').Validator;
+const v = new Validator();
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const { userSchema } = require('../schemas');
 
-const SECRET_KEY = "apaulag";
+const { formatResponse, ApiError } = require('../helpers');
+
+const SECRET_KEY = 'apaulag';
 
 function userAuth(req, res, next) {
   return User.findOne({ username: req.body.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(401, "Unauthorized", "Invalid credentials.");
+        return next(new ApiError(401, 'Unauthorized', 'Invalid credentials.'));
       }
       const isValid = bcrypt.compareSync(req.body.password, user.password);
       if (!isValid) {
-        throw new ApiError(401, "Unauthorized", "Invalid password.");
+        return next(new ApiError(401, 'Unauthorized', 'Invalid password.'));
       }
       const newToken = {
         token: jwt.sign({ username: user.username }, SECRET_KEY, {
@@ -33,11 +35,16 @@ function readUsers(req, res, next) {
       return res.status(201).json(formatResponse(users));
     })
     .catch(err => {
-      return next(new ApiError());
+      return next(err);
     });
 }
 
 function createUser(req, res, next) {
+  const result = v.validate(req.body, userSchema);
+  if (!result.valid) {
+    const errors = result.errors.map(e => e.message).join(', ');
+    return next({ message: errors });
+  }
   return User.createUser(new User(req.body))
     .then(newUser => res.status(201).json(formatResponse(newUser)))
     .catch(err => next(err));
@@ -47,7 +54,7 @@ function readUser(req, res, next) {
   User.findOne({ username: req.params.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, "Not Found Error", "Dave's not here");
+        return next(new ApiError(404, 'Not Found Error', 'Dave\'s not here'));
       }
       return res.status(201).json(formatResponse(user));
     })
@@ -56,7 +63,12 @@ function readUser(req, res, next) {
     });
 }
 
-async function updateUser(req, res, next) {
+function updateUser(req, res, next) {
+  const result = v.validate(req.body, userSchema);
+  if (!result.valid) {
+    const errors = result.errors.map(e => e.message).join(', ');
+    return next({ message: errors });
+  }
   return User.updateUser(req.params.username, req.body)
     .then(user => res.status(201).json(formatResponse(user)))
     .catch(err => next(err));
@@ -64,7 +76,13 @@ async function updateUser(req, res, next) {
 
 function deleteUser(req, res, next) {
   User.deleteUser(req.params.username)
-    .then(user => res.status(201).json(formatResponse(user)))
+    .then(() =>
+      res.status(200).json({
+        status: 200,
+        title: 'Success',
+        message: 'User was deleted'
+      })
+    )
     .catch(err => next(err));
 }
 

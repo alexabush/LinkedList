@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Company = require("./company");
+const { formatResponse, ApiError } = require("../helpers");
 
 const jobSchema = new mongoose.Schema(
   {
@@ -23,7 +24,7 @@ jobSchema.statics = {
         return Company.findByIdAndUpdate(job.company, {
           $addToSet: { jobs: job.id }
         })
-          .then(() => {
+          .then(job => {
             console.log("Company job list updated!");
             return job;
           })
