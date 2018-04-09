@@ -58,13 +58,16 @@ function readUser(req, res, next) {
 
 async function updateUser(req, res, next) {
   const userData = req.body;
+  //is there a way to include all code in one try-catch block?
   if (userData.currentCompanyName) {
+    //does this need to be in a try/catch?
     const user = await User.findOne({ username: req.params.username });
     if (!user) {
       const error = new ApiError(404, 'Not Found Error', 'Dave\'s not here');
       return next(error);
     }
     if (user.currentCompanyId) {
+      //does this need to be in a try/catch?
       await Company.findByIdAndUpdate(user.currentCompanyId, {
         $pull: { employees: user.id }
       });
@@ -78,20 +81,36 @@ async function updateUser(req, res, next) {
       userData.currentCompanyId = null;
     }
   }
-
-  return User.findOneAndUpdate({ username: req.params.username }, userData, {
-    new: true
-  })
-    .then(user => {
-      if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
-      } else {
-        return res.json(`Here is your user: ${user}`);
+  //refactored to use async await
+  try {
+    const user = await User.findOneAndUpdate(
+      { username: req.params.username },
+      userData,
+      {
+        new: true
       }
-    })
-    .catch(err => {
-      return next(err);
-    });
+    );
+    if (!user) {
+      throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+    } else {
+      return res.json(`Here is your user: ${user}`);
+    }
+  } catch (err) {
+    return next(err);
+  }
+  // return User.findOneAndUpdate({ username: req.params.username }, userData, {
+  //   new: true
+  // })
+  //   .then(user => {
+  //     if (!user) {
+  //       throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+  //     } else {
+  //       return res.json(`Here is your user: ${user}`);
+  //     }
+  //   })
+  //   .catch(err => {
+  //     return next(err);
+  //   });
 }
 
 function deleteUser(req, res, next) {

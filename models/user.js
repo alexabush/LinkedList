@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: 'Value Required' },
     lastName: { type: String, required: 'Value Required' },
-    username: { type: String, required: 'Value Required', immutable: true },
+    username: { type: String, required: 'Value Required', unique: true },
     email: { type: String, required: 'Value Required' },
     password: { type: String, required: 'Value Required' },
     currentCompanyId: {
