@@ -1,13 +1,13 @@
-const mongoose = require('mongoose');
-const Company = require('./company');
+const mongoose = require("mongoose");
+const Company = require("./company");
 
 const jobSchema = new mongoose.Schema(
   {
-    title: { type: String, required: 'Required Value' },
+    title: { type: String, required: "Required Value" },
     company: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Company',
-      required: 'Required Value'
+      ref: "Company",
+      required: "Required Value"
     },
     salary: Number,
     equity: Number
@@ -24,7 +24,7 @@ jobSchema.statics = {
           $addToSet: { jobs: job.id }
         })
           .then(() => {
-            console.log('Company job list updated!');
+            console.log("Company job list updated!");
             return job;
           })
           .catch(err => Promise.reject(err));
@@ -40,7 +40,7 @@ jobSchema.statics = {
           $pull: { jobs: job.id }
         })
           .then(() => {
-            console.log('Job removed from company jobs list');
+            console.log("Job removed from company jobs list");
           })
           .catch(err => Promise.reject(err));
       })
@@ -48,6 +48,6 @@ jobSchema.statics = {
   }
 };
 
-const Job = mongoose.model('Job', jobSchema);
+const Job = mongoose.model("Job", jobSchema);
 
 module.exports = Job;
