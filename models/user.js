@@ -1,21 +1,21 @@
-const mongoose = require('mongoose');
-const Company = require('./company');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const mongooseImmutable = require('mongoose-immutable');
+const mongoose = require("mongoose");
+const Company = require("./company");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const mongooseImmutable = require("mongoose-immutable");
 
-const { ApiError } = require('../helpers');
+const { ApiError } = require("../helpers");
 
 const userSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: 'Value Required' },
-    lastName: { type: String, required: 'Value Required' },
-    username: { type: String, required: 'Value Required', immutable: true },
-    email: { type: String, required: 'Value Required' },
-    password: { type: String, required: 'Value Required' },
+    firstName: { type: String, required: "Value Required" },
+    lastName: { type: String, required: "Value Required" },
+    username: { type: String, required: "Value Required", immutable: true },
+    email: { type: String, required: "Value Required" },
+    password: { type: String, required: "Value Required" },
     currentCompanyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Company'
+      ref: "Company"
     },
     currentCompanyName: String,
     photo: String,
@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
         companyName: String,
         companyId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Company'
+          ref: "Company"
         },
         startDate: Date,
         endDate: Date
@@ -50,7 +50,7 @@ userSchema.statics = {
         if (user) {
           throw new ApiError(
             409,
-            'User already exists',
+            "User already exists",
             `The username ${user.username} already exists`
           );
         }
@@ -65,34 +65,37 @@ userSchema.statics = {
         return Promise.reject(err);
       });
   },
-  updateUser(username, userData) {
-    return this.findOneAndUpdate({ username: username }, userData, {
-      new: true
-    })
-      .then(user => {
-        if (!user) {
-          throw new ApiError(
-            404,
-            'User does not exist',
-            'This username does not exist'
-          );
-        }
+  updateUser(username, reqBody) {
+    return this.findOne({ username: username }).then(async user => {
+      if (!user) {
+        throw new ApiError(404, "Not Found Error", "This user does not exist");
+      }
+
+      if (reqBody.currentCompanyName) {
         if (user.currentCompanyId) {
-          return Company.findByIdAndUpdate(user.currentCompanyId, {
-            $addToSet: { employees: user.id }
-          })
-            .then(() => {
-              console.log('Company employee list updated!');
-              return user;
-            })
-            .catch(err => Promise.reject(err));
-        } else {
-          return user;
+          await Company.findByIdAndUpdate(user.currentCompanyId, {
+            $pull: { employees: user.id }
+          });
         }
+        try {
+          const { id } = await Company.findOneAndUpdate(
+            { name: reqBody.currentCompanyName },
+            { $addToSet: { employees: user.id } }
+          );
+          reqBody.currentCompanyId = id;
+        } catch (err) {
+          reqBody.currentCompanyId = null;
+        }
+      }
+
+      return User.findOneAndUpdate({ username: username }, reqBody, {
+        new: true
       })
-      .catch(err => {
-        return Promise.reject(err);
-      });
+        .then(user => {
+          return user;
+        })
+        .catch(err => Promise.reject(err));
+    });
   },
   checkPassword(candidatePassword, next) {
     return bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
@@ -122,8 +125,8 @@ userSchema.statics = {
   // }
 };
 
-userSchema.pre('save', function(monNext) {
-  if (!this.isModified('password')) {
+userSchema.pre("save", function(monNext) {
+  if (!this.isModified("password")) {
     return monNext();
   }
   return bcrypt
@@ -135,7 +138,7 @@ userSchema.pre('save', function(monNext) {
     .catch(err => monNext(err));
 });
 
-userSchema.pre('findOneAndUpdate', function(monNext) {
+userSchema.pre("findOneAndUpdate", function(monNext) {
   const password = this.getUpdate().password;
   if (!password) {
     return monNext();
@@ -150,7 +153,7 @@ userSchema.pre('findOneAndUpdate', function(monNext) {
   }
 });
 
-userSchema.post('findOneAndRemove', user => {
+userSchema.post("findOneAndRemove", user => {
   if (user.currentCompanyId) {
     Company.findByIdAndUpdate(
       user.currentCompanyId,
@@ -161,11 +164,11 @@ userSchema.post('findOneAndRemove', user => {
         new: true
       }
     ).then(() => {
-      console.log('Delete Post Hook Ran');
+      console.log("Delete Post Hook Ran");
     });
   }
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

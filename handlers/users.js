@@ -1,21 +1,21 @@
-const { User, Company } = require('../models');
-const Validator = require('jsonschema').Validator;
+const { User, Company } = require("../models");
+const Validator = require("jsonschema").Validator;
 const validator = new Validator();
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { formatResponse, ApiError } = require('../helpers');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const { formatResponse, ApiError } = require("../helpers");
 
-const SECRET_KEY = 'apaulag';
+const SECRET_KEY = "apaulag";
 
 function userAuth(req, res, next) {
   return User.findOne({ username: req.body.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(401, 'Unauthorized', 'Invalid credentials.');
+        throw new ApiError(401, "Unauthorized", "Invalid credentials.");
       }
       const isValid = bcrypt.compareSync(req.body.password, user.password);
       if (!isValid) {
-        throw new ApiError(401, 'Unauthorized', 'Invalid password.');
+        throw new ApiError(401, "Unauthorized", "Invalid password.");
       }
       const newToken = {
         token: jwt.sign({ username: user.username }, SECRET_KEY, {
@@ -30,7 +30,7 @@ function userAuth(req, res, next) {
 function readUsers(req, res, next) {
   User.find()
     .then(users => {
-      return res.json(`All users: ${users}`);
+      return res.status(201).json(formatResponse(users));
     })
     .catch(err => {
       return next(new ApiError());
@@ -47,9 +47,9 @@ function readUser(req, res, next) {
   User.findOne({ username: req.params.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        throw new ApiError(404, "Not Found Error", "Dave's not here");
       }
-      return res.json(`User info: ${user}`);
+      return res.status(201).json(formatResponse(user));
     })
     .catch(err => {
       return next(err);
@@ -57,50 +57,18 @@ function readUser(req, res, next) {
 }
 
 async function updateUser(req, res, next) {
-  const userData = req.body;
-  if (userData.currentCompanyName) {
-    const user = await User.findOne({ username: req.params.username });
-    if (!user) {
-      const error = new ApiError(404, 'Not Found Error', 'Dave\'s not here');
-      return next(error);
-    }
-    if (user.currentCompanyId) {
-      await Company.findByIdAndUpdate(user.currentCompanyId, {
-        $pull: { employees: user.id }
-      });
-    }
-    try {
-      const { id } = await Company.findOne({
-        name: userData.currentCompanyName
-      });
-      userData.currentCompanyId = id;
-    } catch (err) {
-      userData.currentCompanyId = null;
-    }
-  }
-
-  return User.findOneAndUpdate({ username: req.params.username }, userData, {
-    new: true
-  })
-    .then(user => {
-      if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
-      } else {
-        return res.json(`Here is your user: ${user}`);
-      }
-    })
-    .catch(err => {
-      return next(err);
-    });
+  return User.updateUser(req.params.username, req.body)
+    .then(user => res.status(201).json(formatResponse(user)))
+    .catch(err => next(err));
 }
 
 function deleteUser(req, res, next) {
   User.findOneAndRemove({ username: req.params.username })
     .then(user => {
       if (!user) {
-        throw new ApiError(404, 'Not Found Error', 'Dave\'s not here');
+        throw new ApiError(404, "Not Found Error", "Dave's not here");
       } else {
-        return res.json(`User deleted: ${user}`);
+        return res.status(201).json(formatResponse(user));
       }
     })
     .catch(err => {
