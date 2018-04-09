@@ -53,6 +53,7 @@ function readCompany(req, res, next) {
 }
 
 function updateCompany(req, res, next) {
+  delete req.body.handle;
   Company.findOneAndUpdate({ handle: req.params.handle }, req.body, {
     new: true
   })

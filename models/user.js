@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Company = require("./company");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const mongooseImmutable = require("mongoose-immutable");
 
 const { ApiError } = require("../helpers");
 
@@ -10,7 +9,7 @@ const userSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: "Value Required" },
     lastName: { type: String, required: "Value Required" },
-    username: { type: String, required: "Value Required", immutable: true },
+    username: { type: String, required: "Value Required" },
     email: { type: String, required: "Value Required" },
     password: { type: String, required: "Value Required" },
     currentCompanyId: {
@@ -66,6 +65,7 @@ userSchema.statics = {
       });
   },
   updateUser(username, reqBody) {
+    delete reqBody.username;
     return this.findOne({ username: username }).then(async user => {
       if (!user) {
         throw new ApiError(404, "Not Found Error", "This user does not exist");
