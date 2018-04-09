@@ -34,7 +34,7 @@ jobSchema.statics = {
       });
   },
   deleteJob(jobId) {
-    return this.findOneAndRemove(jobId)
+    return this.findByIdAndRemove(jobId)
       .then(job => {
         return Company.findByIdAndUpdate(job.company, {
           $pull: { jobs: job.id }

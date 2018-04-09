@@ -7,7 +7,7 @@ const companySchema = new mongoose.Schema(
   {
     name: { type: String, required: 'Required Value' },
     email: { type: String, required: 'Required Value' },
-    handle: { type: String, required: 'Required Value' },
+    handle: { type: String, required: 'Required Value', unique: true },
     password: { type: String, required: 'Required Value' },
     logo: String,
     employees: [

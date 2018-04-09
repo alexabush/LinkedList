@@ -2,13 +2,15 @@ const mongoose = require('mongoose');
 const Company = require('./company');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const mongooseImmutable = require('mongoose-immutable');
+
 const { ApiError } = require('../helpers');
 
 const userSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: 'Value Required' },
     lastName: { type: String, required: 'Value Required' },
-    username: { type: String, required: 'Value Required' },
+    username: { type: String, required: 'Value Required', immutable: true },
     email: { type: String, required: 'Value Required' },
     password: { type: String, required: 'Value Required' },
     currentCompanyId: {
