@@ -104,25 +104,32 @@ userSchema.statics = {
       }
       return next(null, isMatch);
     });
+  },
+  deleteUser(username) {
+    return this.findOneAndRemove({ username: username })
+      .then(user => {
+        if (!user) {
+          throw new ApiError(
+            404,
+            "Not Found Error",
+            "This user does not exist"
+          );
+        }
+        if (user.currentCompanyId)
+          return Company.findByIdAndUpdate(
+            user.currentCompanyId,
+            {
+              $pull: { employees: user.id }
+            },
+            { new: true }
+          )
+            .then(() => {
+              return user;
+            })
+            .catch(err => Promise.reject(err));
+      })
+      .catch(err => Promise.reject(err));
   }
-  // INTENTION TO MOVE THE POST HOOK LOGIC INTO STATIC
-  // deleteUser(userId) {
-  //   return this.findOneAndRemove(userId)
-  //     .then(user => {
-  //       return Company.findOneAndUpdate(
-  //         user.currentCompanyId,
-  //         {
-  //           $pull: { employees: user._id }
-  //         },
-  //         { new: true }
-  //       )
-  //         .then(() => {
-  //           console.log("POST HOOK RAN");
-  //         })
-  //         .catch(err => Promise.reject(err));
-  //     })
-  //     .catch(err => Promise.reject(err));
-  // }
 };
 
 userSchema.pre("save", function(monNext) {
@@ -150,22 +157,6 @@ userSchema.pre("findOneAndUpdate", function(monNext) {
     return monNext();
   } catch (error) {
     return monNext(error);
-  }
-});
-
-userSchema.post("findOneAndRemove", user => {
-  if (user.currentCompanyId) {
-    Company.findByIdAndUpdate(
-      user.currentCompanyId,
-      {
-        $pull: { employees: user.id }
-      },
-      {
-        new: true
-      }
-    ).then(() => {
-      console.log("Delete Post Hook Ran");
-    });
   }
 });
 

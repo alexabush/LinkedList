@@ -63,17 +63,9 @@ async function updateUser(req, res, next) {
 }
 
 function deleteUser(req, res, next) {
-  User.findOneAndRemove({ username: req.params.username })
-    .then(user => {
-      if (!user) {
-        throw new ApiError(404, "Not Found Error", "Dave's not here");
-      } else {
-        return res.status(201).json(formatResponse(user));
-      }
-    })
-    .catch(err => {
-      return next(err);
-    });
+  User.deleteUser(req.params.username)
+    .then(user => res.status(201).json(formatResponse(user)))
+    .catch(err => next(err));
 }
 
 module.exports = {
