@@ -59,6 +59,7 @@ function readUser(req, res, next) {
 async function updateUser(req, res, next) {
   const newUserData = req.body;
   //is there a way to include all code in one try-catch block?
+  // || newUserData.currentCompanyName === '' //need to add code to deal with empty string submission
   if (newUserData.currentCompanyName) {
     //does this need to be in a try/catch?
     const savedUser = await User.findOne({ username: req.params.username });
