@@ -1,20 +1,20 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   userAuthRequired,
   companyAuthRequired,
   ensureCorrectCompany
-} = require('../helpers');
+} = require("../helpers");
 
-const { jobs } = require('../handlers');
+const { jobs } = require("../handlers");
 
 router
-  .route('')
+  .route("")
   .get(userAuthRequired, jobs.readJobs)
   .post(companyAuthRequired, jobs.createJob);
 
 router
-  .route('/:jobId')
+  .route("/:jobId")
   .get(userAuthRequired, jobs.readJob)
   .patch(companyAuthRequired, ensureCorrectCompany, jobs.updateJob)
   .delete(companyAuthRequired, ensureCorrectCompany, jobs.deleteJob);

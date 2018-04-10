@@ -7,7 +7,7 @@ const { formatResponse, ApiError } = require("../helpers");
 const { companySchema } = require("../schemas");
 
 require("dotenv").load();
-const SECRET = process.env.SECRET_KEY;
+const SECRET_KEY = process.env.SECRET_KEY;
 
 function companyAuth(req, res, next) {
   return Company.findOne({ handle: req.body.handle })

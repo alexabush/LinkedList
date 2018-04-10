@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { ApiError } = require("../helpers");
 require("dotenv").load();
-const SECRET = process.env.SECRET_KEY;
+const SECRET_KEY = process.env.SECRET_KEY;
 
 function ensureCorrectUser(req, res, next) {
   try {
