@@ -11,8 +11,11 @@ mongoose
     console.log(err);
   });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const app = require("./app");
+app.get("/", (req, res, next) => {
+  return res.send("DEPLOYED");
+});
 app.listen(PORT, () => {
   console.log(`jobs API is listening on port ${PORT}`);
 });
