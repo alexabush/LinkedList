@@ -1,23 +1,23 @@
-const { User, Company } = require('../models');
-const Validator = require('jsonschema').Validator;
+const { User, Company } = require("../models");
+const Validator = require("jsonschema").Validator;
 const v = new Validator();
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { userSchema } = require('../schemas');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const { userSchema } = require("../schemas");
 
-const { formatResponse, ApiError } = require('../helpers');
+const { formatResponse, ApiError } = require("../helpers");
 
-const SECRET_KEY = 'apaulag';
+const SECRET_KEY = "apaulag";
 
 function userAuth(req, res, next) {
   return User.findOne({ username: req.body.username })
     .then(user => {
       if (!user) {
-        return next(new ApiError(401, 'Unauthorized', 'Invalid credentials.'));
+        return next(new ApiError(401, "Unauthorized", "Invalid credentials."));
       }
       const isValid = bcrypt.compareSync(req.body.password, user.password);
       if (!isValid) {
-        return next(new ApiError(401, 'Unauthorized', 'Invalid password.'));
+        return next(new ApiError(401, "Unauthorized", "Invalid password."));
       }
       const newToken = {
         token: jwt.sign({ username: user.username }, SECRET_KEY, {
@@ -42,7 +42,7 @@ function readUsers(req, res, next) {
 function createUser(req, res, next) {
   const result = v.validate(req.body, userSchema);
   if (!result.valid) {
-    const errors = result.errors.map(e => e.message).join(', ');
+    const errors = result.errors.map(e => e.message).join(", ");
     return next({ message: errors });
   }
   return User.createUser(new User(req.body))
@@ -54,7 +54,7 @@ function readUser(req, res, next) {
   User.findOne({ username: req.params.username })
     .then(user => {
       if (!user) {
-        return next(new ApiError(404, 'Not Found Error', 'Dave\'s not here'));
+        return next(new ApiError(404, "Not Found Error", "Dave's not here"));
       }
       return res.status(201).json(formatResponse(user));
     })
@@ -66,7 +66,7 @@ function readUser(req, res, next) {
 function updateUser(req, res, next) {
   const result = v.validate(req.body, userSchema);
   if (!result.valid) {
-    const errors = result.errors.map(e => e.message).join(', ');
+    const errors = result.errors.map(e => e.message).join(", ");
     return next({ message: errors });
   }
   return User.updateUser(req.params.username, req.body)
@@ -79,8 +79,8 @@ function deleteUser(req, res, next) {
     .then(() =>
       res.status(200).json({
         status: 200,
-        title: 'Success',
-        message: 'User was deleted'
+        title: "Success",
+        message: "User was deleted"
       })
     )
     .catch(err => next(err));
