@@ -31,8 +31,7 @@ function userAuth(req, res, next) {
 }
 
 function readUsers(req, res, next) {
-  console.log("Im working");
-  console.log("Im working");
+  return res.json("you made it");
 
   User.find()
     .then(users => {
