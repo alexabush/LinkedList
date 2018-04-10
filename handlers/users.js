@@ -7,7 +7,8 @@ const { userSchema } = require("../schemas");
 
 const { formatResponse, ApiError } = require("../helpers");
 
-const SECRET_KEY = "apaulag";
+require("dotenv").load();
+const SECRET = process.env.SECRET_KEY;
 
 function userAuth(req, res, next) {
   return User.findOne({ username: req.body.username })
@@ -32,7 +33,7 @@ function userAuth(req, res, next) {
 function readUsers(req, res, next) {
   User.find()
     .then(users => {
-      return res.status(201).json(formatResponse(users));
+      return res.status(200).json(formatResponse(users));
     })
     .catch(err => {
       return next(err);
@@ -56,7 +57,7 @@ function readUser(req, res, next) {
       if (!user) {
         return next(new ApiError(404, "Not Found Error", "Dave's not here"));
       }
-      return res.status(201).json(formatResponse(user));
+      return res.status(200).json(formatResponse(user));
     })
     .catch(err => {
       return next(err);
@@ -70,7 +71,7 @@ function updateUser(req, res, next) {
     return next({ message: errors });
   }
   return User.updateUser(req.params.username, req.body)
-    .then(user => res.status(201).json(formatResponse(user)))
+    .then(user => res.status(200).json(formatResponse(user)))
     .catch(err => next(err));
 }
 

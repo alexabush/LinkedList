@@ -1,23 +1,24 @@
-const { Company } = require('../models');
-const Validator = require('jsonschema').Validator;
+const { Company } = require("../models");
+const Validator = require("jsonschema").Validator;
 const v = new Validator();
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { formatResponse, ApiError } = require('../helpers');
-const { companySchema } = require('../schemas');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const { formatResponse, ApiError } = require("../helpers");
+const { companySchema } = require("../schemas");
 
-const SECRET_KEY = 'apaulag';
+require("dotenv").load();
+const SECRET = process.env.SECRET_KEY;
 
 function companyAuth(req, res, next) {
   return Company.findOne({ handle: req.body.handle })
     .then(company => {
       if (!company) {
-        return res.status(401).json({ message: 'Invalid Credentials' });
+        return res.status(401).json({ message: "Invalid Credentials" });
       }
       const isValid = bcrypt.compareSync(req.body.password, company.password);
       if (!isValid) {
         return next(
-          new ApiError(401, 'Unauthorized', 'Invalid handle or password.')
+          new ApiError(401, "Unauthorized", "Invalid handle or password.")
         );
       }
       const newToken = {
@@ -32,14 +33,14 @@ function companyAuth(req, res, next) {
 
 function readCompanies(req, res, next) {
   Company.find()
-    .then(companies => res.status(201).json(formatResponse(companies)))
+    .then(companies => res.status(200).json(formatResponse(companies)))
     .catch(err => next(new ApiError()));
 }
 
 function createCompany(req, res, next) {
   const result = v.validate(req.body, companySchema);
   if (!result.valid) {
-    const errors = result.errors.map(e => e.message).join(', ');
+    const errors = result.errors.map(e => e.message).join(", ");
     return next({ message: errors });
   }
   return Company.createCompany(new Company(req.body))
@@ -51,9 +52,9 @@ function readCompany(req, res, next) {
   Company.findOne({ handle: req.params.handle })
     .then(company => {
       if (!company) {
-        return next(new ApiError(404, 'Not Found Error', 'Dave\'s not here'));
+        return next(new ApiError(404, "Not Found Error", "Dave's not here"));
       }
-      return res.status(201).json(formatResponse(company));
+      return res.status(200).json(formatResponse(company));
     })
     .catch(err => {
       return next(err);
@@ -63,7 +64,7 @@ function readCompany(req, res, next) {
 function updateCompany(req, res, next) {
   const result = v.validate(req.body, companySchema);
   if (!result.valid) {
-    const errors = result.errors.map(e => e.message).join(', ');
+    const errors = result.errors.map(e => e.message).join(", ");
     return next({ message: errors });
   }
   delete req.body.handle;
@@ -72,9 +73,9 @@ function updateCompany(req, res, next) {
   })
     .then(company => {
       if (!company) {
-        return next(new ApiError(404, 'Not Found Error', 'Dave\'s not here'));
+        return next(new ApiError(404, "Not Found Error", "Dave's not here"));
       } else {
-        return res.status(201).json(formatResponse(company));
+        return res.status(200).json(formatResponse(company));
       }
     })
     .catch(err => {
@@ -87,8 +88,8 @@ function deleteCompany(req, res, next) {
     .then(() =>
       res.status(200).json({
         status: 200,
-        title: 'Success',
-        message: 'Company was deleted'
+        title: "Success",
+        message: "Company was deleted"
       })
     )
     .catch(err => next(err));

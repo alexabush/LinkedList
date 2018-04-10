@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { ApiError } = require("../helpers");
-const SECRET_KEY = "apaulag";
+require("dotenv").load();
+const SECRET = process.env.SECRET_KEY;
 var jwtDecode = require("jwt-decode");
 
 function companyAuthRequired(request, response, next) {

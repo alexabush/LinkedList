@@ -1,11 +1,12 @@
-const jwt = require('jsonwebtoken');
-const { ApiError } = require('../helpers');
-const SECRET_KEY = 'apaulag';
-const { Company, Job } = require('../models');
+const jwt = require("jsonwebtoken");
+const { ApiError } = require("../helpers");
+require("dotenv").load();
+const SECRET = process.env.SECRET_KEY;
+const { Company, Job } = require("../models");
 
 function ensureCorrectCompany(req, res, next) {
   try {
-    var token = req.headers.authorization.split(' ')[1];
+    var token = req.headers.authorization.split(" ")[1];
     jwt.verify(token, SECRET_KEY, async function(err, decoded) {
       if (decoded.handle === req.params.handle) {
         return next();
@@ -17,14 +18,14 @@ function ensureCorrectCompany(req, res, next) {
         if (decoded.handle === handle) {
           return next();
         } else {
-          return next(new ApiError(401, 'Unauthorized', 'Invalid auth token.'));
+          return next(new ApiError(401, "Unauthorized", "Invalid auth token."));
         }
       } catch (err) {
-        return next(new ApiError(401, 'Unauthorized', 'Invalid auth token.'));
+        return next(new ApiError(401, "Unauthorized", "Invalid auth token."));
       }
     });
   } catch (err) {
-    return next(new ApiError(401, 'Unauthorized', 'Missing auth token.'));
+    return next(new ApiError(401, "Unauthorized", "Missing auth token."));
   }
 }
 

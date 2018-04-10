@@ -6,7 +6,8 @@ const { jobsRouter, usersRouter, companiesRouter } = require("./routers");
 
 const app = express();
 
-const SECRET = "apaulag";
+require("dotenv").load();
+const SECRET = process.env.SECRET_KEY;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ type: "*/*" }));
