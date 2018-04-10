@@ -31,6 +31,9 @@ function userAuth(req, res, next) {
 }
 
 function readUsers(req, res, next) {
+  console.log("Im working");
+  console.log("Im working");
+
   User.find()
     .then(users => {
       return res.status(200).json(formatResponse(users));
