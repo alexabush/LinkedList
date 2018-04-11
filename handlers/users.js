@@ -1,10 +1,9 @@
-const { User, Company } = require("../models");
 const Validator = require("jsonschema").Validator;
 const v = new Validator();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { User, Company } = require("../models");
 const { newUserSchema, updateUserSchema } = require("../schemas");
-
 const { formatResponse, ApiError } = require("../helpers");
 
 require("dotenv").load();
@@ -31,15 +30,9 @@ function userAuth(req, res, next) {
 }
 
 function readUsers(req, res, next) {
-  return res.json("you made it");
-
   User.find()
-    .then(users => {
-      return res.status(200).json(formatResponse(users));
-    })
-    .catch(err => {
-      return next(err);
-    });
+    .then(users => res.status(200).json(formatResponse(users)))
+    .catch(err => next(err));
 }
 
 function createUser(req, res, next) {
@@ -56,14 +49,10 @@ function createUser(req, res, next) {
 function readUser(req, res, next) {
   User.findOne({ username: req.params.username })
     .then(user => {
-      if (!user) {
-        return next(new ApiError(404, "Not Found Error", "Dave's not here"));
-      }
+      if (!user) return next(new ApiError(404, "Not Found", "Dave's not here"));
       return res.status(200).json(formatResponse(user));
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(err => next(err));
 }
 
 function updateUser(req, res, next) {

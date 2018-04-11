@@ -1,10 +1,10 @@
-const { Company } = require("../models");
 const Validator = require("jsonschema").Validator;
 const v = new Validator();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { formatResponse, ApiError } = require("../helpers");
+const { Company } = require("../models");
 const { newCompanySchema, updateCompanySchema } = require("../schemas");
+const { formatResponse, ApiError } = require("../helpers");
 
 require("dotenv").load();
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -34,7 +34,7 @@ function companyAuth(req, res, next) {
 function readCompanies(req, res, next) {
   Company.find()
     .then(companies => res.status(200).json(formatResponse(companies)))
-    .catch(err => next(new ApiError()));
+    .catch(err => next(err));
 }
 
 function createCompany(req, res, next) {
@@ -51,14 +51,11 @@ function createCompany(req, res, next) {
 function readCompany(req, res, next) {
   Company.findOne({ handle: req.params.handle })
     .then(company => {
-      if (!company) {
-        return next(new ApiError(404, "Not Found Error", "Dave's not here"));
-      }
+      if (!company)
+        return next(new ApiError(404, "Not Found", "Dave's not here"));
       return res.status(200).json(formatResponse(company));
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(err => next(err));
 }
 
 function updateCompany(req, res, next) {
@@ -73,14 +70,12 @@ function updateCompany(req, res, next) {
   })
     .then(company => {
       if (!company) {
-        return next(new ApiError(404, "Not Found Error", "Dave's not here"));
+        return next(new ApiError(404, "Not Found", "Dave's not here"));
       } else {
         return res.status(200).json(formatResponse(company));
       }
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(err => next(err));
 }
 
 function deleteCompany(req, res, next) {

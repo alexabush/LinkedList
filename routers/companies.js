@@ -8,12 +8,13 @@ const {
 } = require("../helpers");
 const { companies } = require("../handlers");
 
+router.post("/company-auth", companies.companyAuth);
+
 router
   .route("")
   .get(generalAuthRequired, companies.readCompanies)
   .post(companies.createCompany);
 
-router.post("/company-auth", companies.companyAuth);
 router
   .route("/:handle")
   .get(userAuthRequired, companies.readCompany)

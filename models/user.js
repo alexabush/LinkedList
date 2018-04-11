@@ -1,19 +1,19 @@
-const mongoose = require('mongoose');
-const Company = require('./company');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { ApiError } = require('../helpers');
+const mongoose = require("mongoose");
+const Company = require("./company");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { ApiError } = require("../helpers");
 
 const userSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: 'Value Required' },
-    lastName: { type: String, required: 'Value Required' },
-    username: { type: String, required: 'Value Required', unique: true },
-    email: { type: String, required: 'Value Required', unique: true },
-    password: { type: String, required: 'Value Required' },
+    firstName: { type: String, required: "Value Required" },
+    lastName: { type: String, required: "Value Required" },
+    username: { type: String, required: "Value Required", unique: true },
+    email: { type: String, required: "Value Required", unique: true },
+    password: { type: String, required: "Value Required" },
     currentCompanyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Company'
+      ref: "Company"
     },
     currentCompanyName: String,
     photo: String,
@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
         companyName: String,
         companyId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Company'
+          ref: "Company"
         },
         startDate: Date,
         endDate: Date
@@ -48,7 +48,7 @@ userSchema.statics = {
         if (user) {
           throw new ApiError(
             409,
-            'User already exists',
+            "User already exists",
             `The username ${user.username} already exists`
           );
         }
@@ -70,13 +70,13 @@ userSchema.statics = {
     try {
       user = await this.findOne({ username: username });
       if (!user) {
-        throw new ApiError(401, 'Not Found Error', 'This user does not exist');
+        throw new ApiError(404, "Not Found", "Dave's not here");
       }
     } catch (err) {
       return Promise.reject(err);
     }
 
-    if (reqBody.currentCompanyName || reqBody.currentCompanyName === '') {
+    if (reqBody.currentCompanyName || reqBody.currentCompanyName === "") {
       if (user.currentCompanyId) {
         try {
           await Company.findByIdAndUpdate(user.currentCompanyId, {
@@ -121,11 +121,7 @@ userSchema.statics = {
     return this.findOneAndRemove({ username: username })
       .then(user => {
         if (!user) {
-          throw new ApiError(
-            404,
-            'Not Found Error',
-            'This user does not exist'
-          );
+          throw new ApiError(404, "Not Found", "Dave's not here");
         }
         if (user.currentCompanyId)
           return Company.findByIdAndUpdate(
@@ -144,8 +140,8 @@ userSchema.statics = {
   }
 };
 
-userSchema.pre('save', function(monNext) {
-  if (!this.isModified('password')) {
+userSchema.pre("save", function(monNext) {
+  if (!this.isModified("password")) {
     return monNext();
   }
   return bcrypt
@@ -157,7 +153,7 @@ userSchema.pre('save', function(monNext) {
     .catch(err => monNext(err));
 });
 
-userSchema.pre('findOneAndUpdate', function(monNext) {
+userSchema.pre("findOneAndUpdate", function(monNext) {
   const password = this.getUpdate().password;
   if (!password) {
     return monNext();
@@ -172,6 +168,6 @@ userSchema.pre('findOneAndUpdate', function(monNext) {
   }
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
