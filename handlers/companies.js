@@ -4,7 +4,7 @@ const v = new Validator();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { formatResponse, ApiError } = require("../helpers");
-const { companySchema } = require("../schemas");
+const { newCompanySchema, updateCompanySchema } = require("../schemas");
 
 require("dotenv").load();
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -38,7 +38,7 @@ function readCompanies(req, res, next) {
 }
 
 function createCompany(req, res, next) {
-  const result = v.validate(req.body, companySchema);
+  const result = v.validate(req.body, newCompanySchema);
   if (!result.valid) {
     const errors = result.errors.map(e => e.message).join(", ");
     return next({ message: errors });
@@ -62,7 +62,7 @@ function readCompany(req, res, next) {
 }
 
 function updateCompany(req, res, next) {
-  const result = v.validate(req.body, companySchema);
+  const result = v.validate(req.body, updateCompanySchema);
   if (!result.valid) {
     const errors = result.errors.map(e => e.message).join(", ");
     return next({ message: errors });

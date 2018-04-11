@@ -49,6 +49,5 @@
       "format": "uri",
       "examples": ["https://logo.png"]
     }
-  },
-  "required": ["name", "password", "handle", "email"]
+  }
 }

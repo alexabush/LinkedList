@@ -3,7 +3,7 @@ const Validator = require("jsonschema").Validator;
 const v = new Validator();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { userSchema } = require("../schemas");
+const { newUserSchema, updateUserSchema } = require("../schemas");
 
 const { formatResponse, ApiError } = require("../helpers");
 
@@ -43,7 +43,7 @@ function readUsers(req, res, next) {
 }
 
 function createUser(req, res, next) {
-  const result = v.validate(req.body, userSchema);
+  const result = v.validate(req.body, newUserSchema);
   if (!result.valid) {
     const errors = result.errors.map(e => e.message).join(", ");
     return next({ message: errors });
@@ -67,7 +67,7 @@ function readUser(req, res, next) {
 }
 
 function updateUser(req, res, next) {
-  const result = v.validate(req.body, userSchema);
+  const result = v.validate(req.body, updateUserSchema);
   if (!result.valid) {
     const errors = result.errors.map(e => e.message).join(", ");
     return next({ message: errors });

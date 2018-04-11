@@ -1,7 +1,8 @@
 const { Job, Company } = require("../models");
 const Validator = require("jsonschema").Validator;
-const validator = new Validator();
+const v = new Validator();
 const { formatResponse, ApiError } = require("../helpers");
+const { jobSchema } = require("../schemas");
 
 function readJobs(req, res, next) {
   Job.find()
@@ -14,6 +15,11 @@ function readJobs(req, res, next) {
 }
 
 async function createJob(req, res, next) {
+  const result = v.validate(req.body, jobSchema);
+  if (!result.valid) {
+    const errors = result.errors.map(e => e.message).join(", ");
+    return next({ message: errors });
+  }
   try {
     const { id } = await Company.findOne({ name: req.body.company });
     req.body.company = id;
@@ -49,6 +55,11 @@ function readJob(req, res, next) {
 }
 
 function updateJob(req, res, next) {
+  const result = v.validate(req.body, jobSchema);
+  if (!result.valid) {
+    const errors = result.errors.map(e => e.message).join(", ");
+    return next({ message: errors });
+  }
   Job.findByIdAndUpdate(req.params.jobId, req.body, { new: true })
     .then(job => {
       if (!job) {
