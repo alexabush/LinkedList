@@ -23,7 +23,7 @@ app.use((err, req, res, next) => {
   } else {
     apiError = err;
   }
-  return res.status(err.status).json(apiError);
+  return res.status(500 || err.status).json(apiError);
 });
 
 module.exports = app;
