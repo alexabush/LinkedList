@@ -6,6 +6,8 @@ const { formatResponse, ApiError } = require("../helpers");
 
 function readJobs(req, res, next) {
   Job.find()
+    .populate("company")
+    .exec()
     .then(jobs => {
       res.status(200).json(formatResponse(jobs));
     })
