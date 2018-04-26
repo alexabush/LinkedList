@@ -11,7 +11,7 @@ mongoose
     console.log(err);
   });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 const app = require("./app");
 app.get("/", (req, res, next) => {
   return res.send("DEPLOYED");
