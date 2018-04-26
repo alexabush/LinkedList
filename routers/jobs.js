@@ -11,7 +11,7 @@ const { jobs } = require("../handlers");
 router
   .route("")
   .get(userAuthRequired, jobs.readJobs)
-  .post(companyAuthRequired, jobs.createJob);
+  .post(companyAuthRequired, ensureCorrectCompany, jobs.createJob);
 
 router
   .route("/:jobId")

@@ -8,7 +8,10 @@ function ensureCorrectCompany(req, res, next) {
   try {
     var token = req.headers.authorization.split(" ")[1];
     jwt.verify(token, SECRET_KEY, async function(err, decoded) {
-      if (decoded.handle === req.params.handle) {
+      if (
+        decoded.handle === req.params.handle ||
+        decoded.handle === req.body.handle
+      ) {
         return next();
       }
       const jobId = req.params.jobId;
