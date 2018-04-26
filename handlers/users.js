@@ -21,7 +21,7 @@ function userAuth(req, res, next) {
       }
       const newToken = {
         token: jwt.sign({ username: user.username }, SECRET_KEY, {
-          expiresIn: 60 * 60
+          expiresIn: 1440 * 60
         })
       };
       return res.json(formatResponse(newToken));

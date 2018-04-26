@@ -23,7 +23,7 @@ function companyAuth(req, res, next) {
       }
       const newToken = {
         token: jwt.sign({ handle: company.handle }, SECRET_KEY, {
-          expiresIn: 60 * 60
+          expiresIn: 1440 * 60
         })
       };
       return res.json(formatResponse(newToken));
