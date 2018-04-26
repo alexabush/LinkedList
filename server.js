@@ -17,5 +17,5 @@ app.get("/", (req, res, next) => {
   return res.send("DEPLOYED");
 });
 app.listen(PORT, () => {
-  console.log(`jobs API is listening on port ${PORT}`);
+  console.log(`LinkedList API is listening on port ${PORT}`);
 });

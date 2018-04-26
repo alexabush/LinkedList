@@ -64,7 +64,7 @@ userSchema.statics = {
       });
   },
   async updateUser(username, reqBody) {
-    //prevents user from changing the username
+    // prevents user from changing the username
     delete reqBody.username;
     let user = null;
     try {
@@ -90,7 +90,7 @@ userSchema.statics = {
 
     if (reqBody.currentCompanyName) {
       try {
-        //separate findOne and update functions
+        // separate findOne and update functions
         const { id } = await Company.findOneAndUpdate(
           { name: reqBody.currentCompanyName },
           { $addToSet: { employees: user.id } }
