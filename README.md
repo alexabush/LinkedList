@@ -1,7 +1,5 @@
 # LinkedList API
 
----
-
 ## Overview
 
 A LinkedIn/AngelList clone coded by [Paula Goyanes](https://github.com/goyanespaula) & [Alex Bush](https://github.com/alexabush)
