@@ -2,9 +2,13 @@
 
 ---
 
+## Overview
+
+A LinkedIn/AngelList clone coded by [Paula Goyanes](https://github.com/goyanespaula) & [Alex Bush](https://github.com/alexabush)
+
 ## Live URL
 
-This API is currently running here:[https://linkedlist-paula.herokuapp.com/]()
+This API is currently running here: [https://linkedlist-paula.herokuapp.com/](https://linkedlist-paula.herokuapp.com/)
 
 ## Documentation
 
